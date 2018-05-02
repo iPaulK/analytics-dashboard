@@ -10,7 +10,8 @@
         "vlucas/phpdotenv": "~2.2",
         "symfony/psr-http-message-bridge": "^1.0",
         "tymon/jwt-auth": "^1.0@dev",
-        "php-http/guzzle6-adapter": "^1.1"
+        "php-http/guzzle6-adapter": "^1.1",
+        "woohoolabs/yin": "^3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
