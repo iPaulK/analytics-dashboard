@@ -1,21 +1,43 @@
-# Lumen PHP Framework
+Luna-park
+=========================================
+# Prerequisites
+### Web servers
+- apache 2
+### Database
+- MySql
+### PHP
+- php >=7.1
+### Required PHP extensions
+- php7.1-curl
+- php7.1-memcache
+- ...
+### Composer
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/lumen-framework/v/unstable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)
+# Installation [for Desktop Development]
+### Clone repository and install dependencies
+```sh
+$ git clone https://bitbucket.org/{username}/lunapark-backend path/to/install
+$ cd path/to/install
+$ composer update
+```
+### Create and configure local config 
+```sh
+$ cp .env.example .env
+```
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+### Run Project
+```sh
+$ php -S localhost:8888 -t public
+```
 
-## Official Documentation
+Of course, more robust local development options are available via Homestead and Valet.
+After this command you can copy this link and check on your browser:
+```sh
+http://localhost:8888/
+```
 
-Documentation for the framework can be found on the [Lumen website](http://lumen.laravel.com/docs).
+# Unit Testing
 
-## Security Vulnerabilities
+Unit testing is done using [PHPUnit](https://phpunit.de/).
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Lumen framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+To execute tests, run `vendor/bin/phpunit` from the command line while in root directory.
