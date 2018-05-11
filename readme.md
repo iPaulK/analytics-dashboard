@@ -25,6 +25,12 @@ $ composer update
 $ cp .env.example .env
 ```
 
+### Generate secret key
+```sh
+$ php artisan jwt:secret
+```
+This will update your .env file with something like JWT_SECRET=foobar
+
 ### Run Project
 ```sh
 $ php -S localhost:8888 -t public

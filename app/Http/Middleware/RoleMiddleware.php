@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use WoohooLabs\Yin\JsonApi\JsonApi;
 
-class Authenticate
+class RoleMiddleware
 {
     /**
      * The authentication guard factory instance.
@@ -32,13 +32,13 @@ class Authenticate
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string|null  $guard
+     * @param  string $roles
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next, $roles)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            throw new UnauthorizedException("User is not logged in");
+        if ($this->auth->guard()->guest() || !$request->user()->hasRole(explode('|', $roles))) {
+            throw new UnauthorizedException("User does not have the right roles");
         }
 
         return $next($request);

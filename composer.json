@@ -13,7 +13,8 @@
         "php-http/guzzle6-adapter": "^1.1",
         "woohoolabs/yin": "^3.0",
         "elasticsearch/elasticsearch": "~5.0",
-        "ongr/elasticsearch-dsl": "~5.0"
+        "ongr/elasticsearch-dsl": "~5.0",
+        "zendframework/zend-diactoros": "^1.3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

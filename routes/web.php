@@ -12,5 +12,39 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return [];
+});
+
+$router->group(['prefix' => 'v1'], function ($router) {
+    // Login
+    $router->post('access-tokens', ['uses' => 'AuthController@login']);
+    
+    $router->group(['middleware' => ['auth:api']], function ($router) {
+        // Logout
+        $router->delete('logout', 'AuthController@logout');
+        // Refresh token
+        $router->post('refresh', 'AuthController@refresh');
+        // User info
+        $router->get('me', 'AuthController@getAuthenticatedUser');
+
+        $router->group(['middleware' => ['role:admin']], function ($router) {
+            /*
+             |--------------------------------------------------------------------------
+             | Users
+             |--------------------------------------------------------------------------
+             */
+            $router->get('users', 'UsersController@index');
+            $router->get('users/{id}', 'UsersController@show');
+            $router->post('users', 'UsersController@create');
+            $router->put('users/{id}', 'UsersController@update');
+            $router->delete('users/{id}', 'UsersController@delete');
+        });
+    });
+
+    $router->options('access-tokens', 'AuthController@options');
+    $router->options('logout', 'AuthController@options');
+    $router->options('refresh', 'AuthController@options');
+    $router->options('me', 'AuthController@options');
+    $router->options('users', 'UsersController@options');
+    $router->options('users/{id}', 'UsersController@options');
 });
