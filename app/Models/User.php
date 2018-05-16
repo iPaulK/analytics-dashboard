@@ -187,7 +187,7 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
         }
 
         $query = self::applyFilters($query, $request->input('filter'));
-        $query = self::applySort($query, $request->input('sort'));
+        $query = self::applySort($query, $request->input('sort'), $request->input('order'));
 
         return $query;
     }
@@ -230,25 +230,17 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
      * @param $sort
      * @return Builder
      */
-    private static function applySort(Builder $query, $sort)
+    private static function applySort(Builder $query, $sort = 'created_at', $dir = 'asc')
     {
-        $field = 'created_at';
-        $dir = 'asc';
-
-        if (!empty($sort)) {
-            if (substr($sort, 0, 1) === '-') {
-                $field = substr($sort, 1);
-                $dir = 'desc';
-            } else {
-                $field = $sort;
-            }
+        if (!in_array($sort, ['id', 'first_name', 'last_name', 'email', 'updated_at', 'created_at'])) {
+            $sort = 'created_at';
         }
 
-        if (!in_array($field, ['id', 'first_name', 'last_name', 'email', 'created_at'])) {
-            $field = 'created_at';
+        if (!in_array($dir, ['asc', 'desc'])) {
+            $dir = 'asc';
         }
 
-        $query->orderBy($field, $dir);
+        $query->orderBy($sort, $dir);
 
         return $query;
     }

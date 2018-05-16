@@ -15,7 +15,7 @@ $router->get('/', function () use ($router) {
     return [];
 });
 
-$router->group(['prefix' => 'v1'], function ($router) {
+$router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     // Login
     $router->post('access-tokens', ['uses' => 'AuthController@login']);
     

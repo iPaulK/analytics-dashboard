@@ -85,10 +85,16 @@ class UserResourceTransformer extends AbstractResourceTransformer
                 return $user["email"];
             },
             "created_at" => function ($user) {
-                return $user["created_at"];
+                if (isset($user["created_at"]) && $user["created_at"] instanceof \DateTime) {
+                    return $user["created_at"]->format(DATE_ISO8601);
+                }
+                return null;
             },
             "updated_at" => function ($user) {
-                return $user["updated_at"];
+                if (isset($user["updated_at"]) && $user["updated_at"] instanceof \DateTime) {
+                    return $user["updated_at"]->format(DATE_ISO8601);
+                }
+                return null;
             }
         ];
     }
