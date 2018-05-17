@@ -15,8 +15,6 @@ class AfterUsersTableAddRoleId extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->integer('role_id')->unsigned()->nullable();
-
-            $table->foreign('role_id')->references('id')->on('users');
         });
     }
 
