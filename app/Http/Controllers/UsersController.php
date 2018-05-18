@@ -9,7 +9,10 @@ use App\JsonApi\Document\{
 };
 use App\JsonApi\Hydrator\UserHydrator;
 use App\JsonApi\Transformer\UserResourceTransformer;
-use App\Models\User;
+use App\Models\{
+    User,
+    Role
+};
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
@@ -58,8 +61,10 @@ class UsersController extends Controller
      */
     public function create(Request $request, JsonApi $jsonApi): ResponseInterface
     {
+        // Hydrating the retrieved employee object from the request
+        $user = (new User)->createByRole(Role::ROLE_EMPLOYEE);
         // Hydrating the retrieved user object from the request
-        $user = $jsonApi->hydrate(new UserHydrator(), new User());
+        $user = $jsonApi->hydrate(new UserHydrator(), $user);
         $user->save();
         // Returns a "201 Created" response
         return $jsonApi->respond()->ok($this->createUserDocument(), $user);

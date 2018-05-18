@@ -168,6 +168,24 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
     }
 
     /**
+     * Create a new user by role.
+     *
+     * @param string $roleName
+     * @return $this
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function createByRole($roleName, $attributes = [])
+    {
+        $role = Role::where(['name' => $roleName])->firstOrFail();
+
+        $user = $this->newInstance($attributes);
+        $user->role()->associate($role);
+
+        return $user;
+    }
+
+    /**
      * Apply request params to the builder instance.
      *
      * @param Request $request
