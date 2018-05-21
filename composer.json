@@ -14,7 +14,8 @@
         "woohoolabs/yin": "^3.0",
         "elasticsearch/elasticsearch": "~5.0",
         "ongr/elasticsearch-dsl": "~5.0",
-        "zendframework/zend-diactoros": "^1.3.0"
+        "zendframework/zend-diactoros": "^1.3.0",
+        "google/apiclient": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

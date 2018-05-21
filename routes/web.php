@@ -19,6 +19,8 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     // Login
     $router->post('access-tokens', ['uses' => 'AuthController@login']);
     
+    $router->get('helloanalytics', ['uses' => 'HelloAnalyticsController@index']);
+    
     $router->group(['middleware' => ['auth:api']], function ($router) {
         // Logout
         $router->delete('logout', 'AuthController@logout');
@@ -38,6 +40,14 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
             $router->post('users', 'UsersController@create');
             $router->put('users/{id}', 'UsersController@update');
             $router->delete('users/{id}', 'UsersController@delete');
+
+            /*
+             |--------------------------------------------------------------------------
+             | GoogleAnalytics
+             |--------------------------------------------------------------------------
+             */
+            $router->get('ga/accounts', ['uses' => 'GoogleAnalytics\AccountsController@index']);
+            $router->get('ga/webproperties/{accountId}', ['uses' => 'GoogleAnalytics\WebPropertiesController@index']);
         });
     });
 
@@ -47,4 +57,7 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     $router->options('me', 'AuthController@options');
     $router->options('users', 'UsersController@options');
     $router->options('users/{id}', 'UsersController@options');
+    
+    $router->options('ga/accounts', 'GoogleAnalytics\AccountsController@options');
+    $router->options('ga/webproperties/{accountId}', 'GoogleAnalytics\WebPropertiesController@options');
 });

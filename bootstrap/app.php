@@ -26,6 +26,7 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades([
     'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
     'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+    'Google' => App\Facades\Google::class
 ]);
 
 $app->withEloquent();
@@ -88,6 +89,7 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\JsonApiProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
+$app->register(App\Providers\GoogleServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
