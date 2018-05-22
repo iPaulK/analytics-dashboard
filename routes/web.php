@@ -48,6 +48,7 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
              */
             $router->get('ga/accounts', ['uses' => 'GoogleAnalytics\AccountsController@index']);
             $router->get('ga/webproperties/{accountId}', ['uses' => 'GoogleAnalytics\WebPropertiesController@index']);
+            $router->get('ga/account/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\ProfilesController@index']);
         });
     });
 
@@ -60,4 +61,5 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     
     $router->options('ga/accounts', 'GoogleAnalytics\AccountsController@options');
     $router->options('ga/webproperties/{accountId}', 'GoogleAnalytics\WebPropertiesController@options');
+    $router->options('ga/account/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\ProfilesController@options');
 });

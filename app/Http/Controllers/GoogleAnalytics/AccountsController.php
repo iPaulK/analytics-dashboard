@@ -34,13 +34,13 @@ class AccountsController extends Controller
         foreach ($items as $account) {
             $data[] = [
                 'id' => $account->getId(),
-                'name' => $account->getName(),
                 'kind' => $account->getKind(),
                 'selfLink' => $account->getSelfLink(),
-                'starred' => $account->getStarred(),
+                'name' => $account->getName(),
+                'permissions' => $account->getPermissions(),
                 'created' => $account->getCreated(),
                 'updated' => $account->getUpdated(),
-                'permissions' => $account->getPermissions(),
+                'starred' => $account->getStarred(),
             ];
         }
 
