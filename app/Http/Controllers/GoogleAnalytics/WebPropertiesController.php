@@ -27,25 +27,32 @@ class WebPropertiesController extends Controller
     {
         // returns instance of \Google_Service_Storage
         $analytics = Google::make('analytics');
-        // Get the list of accounts for the authorized user.
-        $accounts = $analytics->management_webproperties->listManagementWebproperties($accountId);
-        return $this->printResults($accounts->getItems());
+        // Get the list of webproperties for the authorized user.
+        $webproperties = $analytics->management_webproperties->listManagementWebproperties($accountId);
+        return $this->printResults($webproperties->getItems());
     }
 
-    protected function printResults($items)
+    protected function printResults($webproperties)
     {
         $data = [];
-        foreach ($items as $account) {
+        foreach ($webproperties as $webproperty) {
             $data[] = [
-                'id' => $account->getId(),
-                'name' => $account->getName(),
-                'accountId' => $account->getAccountId(),
-                'kind' => $account->getKind(),
-                'selfLink' => $account->getSelfLink(),
-                'created' => $account->getCreated(),
-                'updated' => $account->getUpdated(),
-                'websiteUrl' => $account->getWebsiteUrl(),
-                'permissions' => $account->getPermissions(),
+                'id' => $webproperty->getId(),
+                'kind' => $webproperty->getKind(),
+                'selfLink' => $webproperty->getSelfLink(),
+                'accountId' => $webproperty->getAccountId(),
+                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
+                'name' => $webproperty->getName(),
+                'websiteUrl' => $webproperty->getWebsiteUrl(),
+                'level' => $webproperty->getLevel(),
+                'profileCount' => $webproperty->getProfileCount(),
+                'industryVertical' => $webproperty->getIndustryVertical(),
+                'defaultProfileId' => $webproperty->getDefaultProfileId(),
+                'created' => $webproperty->getCreated(),
+                'updated' => $webproperty->getUpdated(),
+                'starred' => $webproperty->getStarred(),
+                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
+                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
             ];
         }
 

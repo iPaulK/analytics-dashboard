@@ -41,6 +41,8 @@ class AccountsController extends Controller
                 'created' => $account->getCreated(),
                 'updated' => $account->getUpdated(),
                 'starred' => $account->getStarred(),
+                'isUpdatedLastDay' => $this->isUpdatedLastDay($account->getUpdated()),
+                'isCreatedLastDay' => $this->isCreatedLastDay($account->getCreated()),
             ];
         }
 

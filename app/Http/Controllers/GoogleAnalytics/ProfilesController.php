@@ -30,39 +30,41 @@ class ProfilesController extends Controller
     {
         // returns instance of \Google_Service_Storage
         $analytics = Google::make('analytics');
-        // Get the list of accounts for the authorized user.
-        $accounts = $analytics->management_profiles->listManagementProfiles($accountId, $webPropertyId);
-        return $this->printResults($accounts->getItems());
+        // Get the list of profiles for the authorized user.
+        $profiles = $analytics->management_profiles->listManagementProfiles($accountId, $webPropertyId);
+        return $this->printResults($profiles->getItems());
     }
 
     protected function printResults($items)
     {
         $data = [];
-        foreach ($items as $account) {
+        foreach ($items as $profile) {
             $data[] = [
-                'id' => $account->getId(),
-                'kind' => $account->getKind(),
-                'selfLink' => $account->getSelfLink(),
-                'accountId' => $account->getAccountId(),
-                'webPropertyId' => $account->getWebPropertyId(),
-                'internalWebPropertyId' => $account->getInternalWebPropertyId(),
-                'name' => $account->getName(),
-                'currency' => $account->getCurrency(),
-                'timezone' => $account->getTimezone(),
-                'websiteUrl' => $account->getWebsiteUrl(),
-                'defaultPage' => $account->getDefaultPage(),
-                'excludeQueryParameters' => $account->getExcludeQueryParameters(),
-                'siteSearchQueryParameters' => $account->getSiteSearchQueryParameters(),
-                'stripSiteSearchQueryParameters' => $account->getStripSiteSearchQueryParameters(),
-                'siteSearchCategoryParameters' => $account->getSiteSearchCategoryParameters(),
-                'stripSiteSearchCategoryParameters' => $account->getStripSiteSearchCategoryParameters(),
-                'type' => $account->getType(),
-                'created' => $account->getCreated(),
-                'updated' => $account->getUpdated(),
-                'eCommerceTracking' => $account->getECommerceTracking(),
-                'enhancedECommerceTracking' => $account->getEnhancedECommerceTracking(),
-                'botFilteringEnabled' => $account->getBotFilteringEnabled(),
-                'starred' => $account->getStarred(),
+                'id' => $profile->getId(),
+                'kind' => $profile->getKind(),
+                'selfLink' => $profile->getSelfLink(),
+                'accountId' => $profile->getAccountId(),
+                'webPropertyId' => $profile->getWebPropertyId(),
+                'internalWebPropertyId' => $profile->getInternalWebPropertyId(),
+                'name' => $profile->getName(),
+                'currency' => $profile->getCurrency(),
+                'timezone' => $profile->getTimezone(),
+                'websiteUrl' => $profile->getWebsiteUrl(),
+                'defaultPage' => $profile->getDefaultPage(),
+                'excludeQueryParameters' => $profile->getExcludeQueryParameters(),
+                'siteSearchQueryParameters' => $profile->getSiteSearchQueryParameters(),
+                'stripSiteSearchQueryParameters' => $profile->getStripSiteSearchQueryParameters(),
+                'siteSearchCategoryParameters' => $profile->getSiteSearchCategoryParameters(),
+                'stripSiteSearchCategoryParameters' => $profile->getStripSiteSearchCategoryParameters(),
+                'type' => $profile->getType(),
+                'created' => $profile->getCreated(),
+                'updated' => $profile->getUpdated(),
+                'eCommerceTracking' => $profile->getECommerceTracking(),
+                'enhancedECommerceTracking' => $profile->getEnhancedECommerceTracking(),
+                'botFilteringEnabled' => $profile->getBotFilteringEnabled(),
+                'starred' => $profile->getStarred(),
+                'isUpdatedLastDay' => $this->isUpdatedLastDay($profile->getUpdated()),
+                'isCreatedLastDay' => $this->isCreatedLastDay($profile->getCreated()),
             ];
         }
 
