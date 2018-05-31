@@ -11,31 +11,32 @@ use WoohooLabs\Yin\JsonApi\JsonApi;
 use App\Facades\Google;
 
 /**
- * Class WebPropertiesController
+ * Class CustomDimensionsController
  * @package App\Http\Controllers
  */
-class WebPropertiesController extends Controller
+class CustomDimensionsController extends Controller
 {
     /**
-     * Get the list of webproperties
+     * Lists custom dimensions to which the user has access.
+     * (customDimensions.listManagementCustomDimensions)
      *
-     * @param string $accountId Account ID to retrieve web properties for. Can
-     * either be a specific account ID or '~all', which refers to all the accounts
-     * that user has access to.
+     * @param string $accountId Account ID for the custom dimensions to retrieve.
+     * @param string $webPropertyId Web property ID for the custom dimensions to
+     * retrieve.
      * @param Request $request
+     *
      * @return json
      */
-    public function index($accountId, Request $request)
+    public function index($accountId, $webPropertyId, Request $request)
     {
-      try {
-          // returns instance of \Google_Service_Storage
-          $analytics = Google::make('analytics');
-          // Get the list of webproperties for the authorized user.
-          $webproperties = $analytics->management_webproperties->listManagementWebproperties($accountId);
-      } catch (Google_Service_Exception $e) {
-          throw new GoogleServiceException($e->getMessage());
-      }
-      return $this->printResults($webproperties->getItems());
+        try {
+            // returns instance of \Google_Service_Storage
+            $analytics = Google::make('analytics');
+            $webproperties = $analytics->management_customDimensions->listManagementCustomDimensions($accountId, $webPropertyId);
+        } catch (Google_Service_Exception $e) {
+            throw new GoogleServiceException($e->getMessage());
+        }
+        return $this->printResults($webproperties->getItems());
     }
 
     protected function printResults($webproperties)
@@ -47,16 +48,13 @@ class WebPropertiesController extends Controller
                 'kind' => $webproperty->getKind(),
                 'selfLink' => $webproperty->getSelfLink(),
                 'accountId' => $webproperty->getAccountId(),
-                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
+                'webPropertyId' => $webproperty->getWebPropertyId(),
                 'name' => $webproperty->getName(),
-                'websiteUrl' => $webproperty->getWebsiteUrl(),
-                'level' => $webproperty->getLevel(),
-                'profileCount' => $webproperty->getProfileCount(),
-                'industryVertical' => $webproperty->getIndustryVertical(),
-                'defaultProfileId' => $webproperty->getDefaultProfileId(),
+                'index' => $webproperty->getIndex(),
+                'scope' => $webproperty->getScope(),
+                'active' => $webproperty->getActive(),
                 'created' => $webproperty->getCreated(),
                 'updated' => $webproperty->getUpdated(),
-                'starred' => $webproperty->getStarred(),
                 'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
                 'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
             ];

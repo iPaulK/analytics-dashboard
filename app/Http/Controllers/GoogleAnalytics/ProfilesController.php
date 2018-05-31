@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\GoogleAnalytics;
 
 use App\Http\Controllers\Controller;
+use App\Exceptions\GoogleServiceException;
+use Google_Service_Exception;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
@@ -28,11 +30,15 @@ class ProfilesController extends Controller
      */
     public function index($accountId, $webPropertyId, Request $request)
     {
-        // returns instance of \Google_Service_Storage
-        $analytics = Google::make('analytics');
-        // Get the list of profiles for the authorized user.
-        $profiles = $analytics->management_profiles->listManagementProfiles($accountId, $webPropertyId);
-        return $this->printResults($profiles->getItems());
+      try {
+          // returns instance of \Google_Service_Storage
+          $analytics = Google::make('analytics');
+          // Get the list of profiles for the authorized user.
+          $profiles = $analytics->management_profiles->listManagementProfiles($accountId, $webPropertyId);
+      } catch (Google_Service_Exception $e) {
+          throw new GoogleServiceException($e->getMessage());
+      }
+      return $this->printResults($profiles->getItems());
     }
 
     protected function printResults($items)

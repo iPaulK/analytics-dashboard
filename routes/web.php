@@ -51,6 +51,18 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
             $router->get('ga/account/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\ProfilesController@index']);
             $router->get('ga/webproperty-adwords-links/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\WebPropertyAdWordsLinksController@index']);
             $router->get('ga/custom-data-sources/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\CustomDataSourcesController@index']);
+
+            $router->get('ga/custom-dimensions/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\CustomDimensionsController@index']);
+
+            $router->get('ga/custom-metrics/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\CustomMetricsController@index']);
+
+            $router->get('ga/goals/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', ['uses' => 'GoogleAnalytics\GoalsController@index']);
+            $router->get('ga/profile-filter-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', ['uses' => 'GoogleAnalytics\ProfileFilterLinksController@index']);
+            $router->get('ga/profile-user-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', ['uses' => 'GoogleAnalytics\ProfileUserLinksController@index']);
+            $router->get('ga/webproperty-user-links/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\WebPropertyUserLinksController@index']);
+            
+            $router->get('ga/filters/{accountId}', ['uses' => 'GoogleAnalytics\FiltersController@index']);
+            $router->get('ga/account-user-links/{accountId}', ['uses' => 'GoogleAnalytics\AccountUserLinksController@index']);
         });
     });
 
@@ -65,5 +77,13 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     $router->options('ga/webproperties/{accountId}', 'GoogleAnalytics\WebPropertiesController@options');
     $router->options('ga/account/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\ProfilesController@options');
     $router->options('ga/webproperty-adwords-links/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\WebPropertyAdWordsLinksController@options');
-    $router->options('ga/custom-data-sources/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\WebPropertyAdWordsLinksController@options');
+    $router->options('ga/custom-data-sources/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\CustomDataSourcesController@options');
+    $router->options('ga/custom-dimensions/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\CustomDimensionsController@options');
+    $router->options('ga/custom-metrics/{accountId}/webproperty/{webPropertyId}', 'GoogleAnalytics\CustomMetricsController@options');
+    $router->options('ga/goals/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', 'GoogleAnalytics\GoalsController@options');
+    $router->options('ga/profile-filter-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', 'GoogleAnalytics\ProfileFilterLinksController@options');
+    $router->options('ga/profile-user-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', 'GoogleAnalytics\ProfileUserLinksController@options');
+    $router->options('ga/filters/{accountId}', 'GoogleAnalytics\FiltersController@options');
+    $router->options('ga/account-user-links/{accountId}', 'GoogleAnalytics\AccountUserLinksController@options');
+    $router->options('ga/webproperty-user-links/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\WebPropertyUserLinksController@index']);
 });

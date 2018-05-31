@@ -11,10 +11,10 @@ use WoohooLabs\Yin\JsonApi\JsonApi;
 use App\Facades\Google;
 
 /**
- * Class WebPropertyAdWordsLinksController
+ * Class WebPropertyUserLinksController
  * @package App\Http\Controllers
  */
-class WebPropertyAdWordsLinksController extends Controller
+class WebPropertyUserLinksController extends Controller
 {
     /**
      * Lists webProperty-user links for a given web property.
@@ -33,35 +33,24 @@ class WebPropertyAdWordsLinksController extends Controller
         try {
             // returns instance of \Google_Service_Storage
             $analytics = Google::make('analytics');
-            // Get the list of webproperties for the authorized user.
-            $webproperties = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
+            $webpropertyUserLinks = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
         } catch (Google_Service_Exception $e) {
             throw new GoogleServiceException($e->getMessage());
         }
-        return $this->printResults($webproperties->getItems());
+        return $this->printResults($webpropertyUserLinks->getItems());
     }
 
-    protected function printResults($webproperties)
+    protected function printResults($webpropertyUserLinks)
     {
         $data = [];
-        foreach ($webproperties as $webproperty) {
+        foreach ($webpropertyUserLinks as $webpropertyUserLink) {
             $data[] = [
-                'id' => $webproperty->getId(),
-                'kind' => $webproperty->getKind(),
-                'selfLink' => $webproperty->getSelfLink(),
-                'accountId' => $webproperty->getAccountId(),
-                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
-                'name' => $webproperty->getName(),
-                'websiteUrl' => $webproperty->getWebsiteUrl(),
-                'level' => $webproperty->getLevel(),
-                'profileCount' => $webproperty->getProfileCount(),
-                'industryVertical' => $webproperty->getIndustryVertical(),
-                'defaultProfileId' => $webproperty->getDefaultProfileId(),
-                'created' => $webproperty->getCreated(),
-                'updated' => $webproperty->getUpdated(),
-                'starred' => $webproperty->getStarred(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
+                'id' => $webpropertyUserLink->getId(),
+                'kind' => $webpropertyUserLink->getKind(),
+                'selfLink' => $webpropertyUserLink->getSelfLink(),
+                'entity' => $webpropertyUserLink->getEntity(),
+                'userRef' => $webpropertyUserLink->getUserRef(),
+                'permissions' => $webpropertyUserLink->getPermissions(),
             ];
         }
 

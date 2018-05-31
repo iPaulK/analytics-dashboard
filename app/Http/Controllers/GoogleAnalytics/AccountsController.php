@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\GoogleAnalytics;
 
 use App\Http\Controllers\Controller;
+use App\Exceptions\GoogleServiceException;
+use Google_Service_Exception;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
@@ -21,10 +23,14 @@ class AccountsController extends Controller
      */
     public function index()
     {
-        // returns instance of \Google_Service_Storage
-        $analytics = Google::make('analytics');
-        // Get the list of accounts for the authorized user.
-        $accounts = $analytics->management_accounts->listManagementAccounts();
+        try {
+            // returns instance of \Google_Service_Storage
+            $analytics = Google::make('analytics');
+            // Get the list of accounts for the authorized user.
+            $accounts = $analytics->management_accounts->listManagementAccounts();
+        } catch (Google_Service_Exception $e) {
+            throw new GoogleServiceException($e->getMessage());
+        }
         return $this->printResults($accounts->getItems());
     }
 
