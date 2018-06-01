@@ -18,7 +18,13 @@ return [
     'client_id'       => env('GOOGLE_CLIENT_ID', ''),
     'client_secret'   => env('GOOGLE_CLIENT_SECRET', ''),
     'redirect_uri'    => env('GOOGLE_REDIRECT', ''),
-    'scopes'          => ["https://www.googleapis.com/auth/analytics.readonly"],
+    'scopes'          => [
+        "https://www.googleapis.com/auth/analytics.readonly",
+        "https://www.googleapis.com/auth/analytics.manage.users",
+        "https://www.googleapis.com/auth/analytics.provision",
+        "https://www.googleapis.com/auth/tagmanager.readonly",
+        "https://www.googleapis.com/auth/webmasters.readonly",
+    ],
     'access_type'     => 'online',
     'approval_prompt' => 'auto',
     /*

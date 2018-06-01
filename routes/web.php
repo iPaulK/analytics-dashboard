@@ -63,6 +63,20 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
             
             $router->get('ga/filters/{accountId}', ['uses' => 'GoogleAnalytics\FiltersController@index']);
             $router->get('ga/account-user-links/{accountId}', ['uses' => 'GoogleAnalytics\AccountUserLinksController@index']);
+
+            /*
+             |--------------------------------------------------------------------------
+             | GoogleTagManager
+             |--------------------------------------------------------------------------
+             */
+            $router->get('gtm/accounts', ['uses' => 'GoogleTagManager\AccountsController@index']);
+
+            /*
+             |--------------------------------------------------------------------------
+             | GoogleSeacrhConsole
+             |--------------------------------------------------------------------------
+             */
+            $router->get('gsc/sites', ['uses' => 'GoogleSearchConsole\SitesController@index']);
         });
     });
 
@@ -86,4 +100,10 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     $router->options('ga/filters/{accountId}', 'GoogleAnalytics\FiltersController@options');
     $router->options('ga/account-user-links/{accountId}', 'GoogleAnalytics\AccountUserLinksController@options');
     $router->options('ga/webproperty-user-links/{accountId}/webproperty/{webPropertyId}', ['uses' => 'GoogleAnalytics\WebPropertyUserLinksController@index']);
+
+
+    $router->options('gtm/accounts', 'GoogleTagManager\AccountsController@options');
+
+
+    $router->options('gsc/sites', 'GoogleSearchConsole\SitesController@options');
 });
