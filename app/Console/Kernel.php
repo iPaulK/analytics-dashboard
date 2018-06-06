@@ -13,7 +13,11 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\Google\RequestQueueCommand::class,
+        Commands\Google\Analytics\AccountsCommand::class,
+        Commands\Google\Analytics\AccountUserLinksCommand::class,
+        Commands\Google\Analytics\FiltersCommand::class,
+        Commands\Google\Analytics\WebpropertiesCommand::class,
     ];
 
     /**
