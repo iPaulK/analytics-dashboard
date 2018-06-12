@@ -2,10 +2,17 @@
 
 namespace App\Console\Commands\Google\Analytics;
 
-use Illuminate\Console\Command;
+use App\Console\Commands\Google\GoogleCommand;
+use App\Facades\Google;
+use App\Models\Google\Analytics\WebProperty;
 
-class WebpropertiesCommand extends Command
+class WebpropertiesCommand extends GoogleCommand
 {
+    /**
+     * @var string
+     */
+    protected $cmd = 'google:analytics:webproperties';
+    
     /**
      * The name and signature of the console command.
      *
@@ -27,6 +34,22 @@ class WebpropertiesCommand extends Command
      */
     public function handle()
     {
-        
+        $analytics = Google::make('analytics');
+
+        $account_id = $this->argument('account_id');
+
+        $webproperties = $analytics->management_webproperties->listManagementWebproperties($account_id);
+        foreach ($webproperties->getItems() as $webproperty) {
+            $newWebproperty = (new WebProperty)->transform($webproperty);
+            
+            $lastWebproperty = WebProperty::findLastByWebPropertyId($webproperty->getId());
+            
+            $version = $lastWebproperty ? $lastWebproperty->version + 1 : 1;
+            
+            if (!$lastWebproperty || ($lastWebproperty && $newWebproperty->isDiff($lastWebproperty))) {
+                $newWebproperty->version = $version;
+                $newWebproperty->save();
+            }
+        }
     }
 }

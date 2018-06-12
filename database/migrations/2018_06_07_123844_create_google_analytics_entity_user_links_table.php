@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGoogleAnalyticsAccountsTable extends Migration
+class CreateGoogleAnalyticsEntityUserLinksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateGoogleAnalyticsAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::create('google_analytics_accounts', function (Blueprint $table) {
+        Schema::create('google_analytics_entity_user_links', function (Blueprint $table) {
             $table->increments('id');
             $table->smallInteger('version')->nullable();
+            $table->string('userLinkId', 50)->nullable();
             $table->string('accountId', 50)->nullable();
             
             $table->string('kind', 50)->nullable();
             $table->string('selfLink', 50)->nullable();
-            $table->string('name', 50)->nullable();
             $table->text('permissions');
-            $table->boolean('starred');
             
             $table->timestamps();
         });
@@ -35,6 +34,6 @@ class CreateGoogleAnalyticsAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('google_analytics_accounts');
+        Schema::dropIfExists('google_analytics_entity_user_links');
     }
 }

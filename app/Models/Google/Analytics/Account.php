@@ -1,7 +1,11 @@
 <?php
 namespace App\Models\Google\Analytics;
 
+use Google_Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Account
@@ -46,7 +50,7 @@ class Account extends Model
      * Find last a account by accountId
      *
      * @param string $accountId
-     * @return User
+     * @return Account
      */
     public static function findLastByAccountId($accountId)
     {
@@ -56,27 +60,78 @@ class Account extends Model
     }
 
     /**
-     * Create a new account by attributes.
+     * Find accounts by accountId
      *
-     * @param [] $attributes
+     * @param string $accountId
+     * @return Account
+     */
+    public static function findByAccountId($accountId)
+    {
+        return self::where('account_id', $accountId)
+            ->orderBy('version', 'desc');
+    }
+
+    /**
+     * Apply request params to the builder instance.
+     *
+     * @param Request $request
+     * @param Builder|null $builder
+     * @param string|null $roleName
+     * @return \Illuminate\Support\Collection
+     */
+    public static function filter(Request $request, Builder $builder = null, $roleName = null)
+    {
+        $query = $builder ?? self::query();
+        $query = self::applyFilters($query, $request->input('filter'));
+        return $query;
+    }
+
+    /**
+     * @param Builder $query
+     * @param array|null $filters
+     * @return Builder
+     */
+    private static function applyFilters(Builder $query, ?array $filters)
+    {
+        if (!is_array($filters) || count($filters) < 1) {
+            return $query;
+        }
+
+        if (!empty($filters['query'])) {
+            $value = '%' . $filters['query'] . '%';
+
+            $query->where(function (Builder $q) use ($value) {
+                return $q->orWhere('id', 'LIKE', '%' . $value . '%')
+                    ->orWhere('account_id', 'LIKE', '%' . $value . '%')
+                    ->orWhere('name', 'LIKE', '%' . $value . '%');
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Create a new account from Google Model.
+     *
+     * @param Google_Model $model
      * @return Account
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function createAccount($attributes)
+    public function transform(Google_Model $model)
     {
-        return $this->newInstance($attributes);
-    }
+        $object = $model->toSimpleObject();
+        
+        // convert object to associative array
+        $attributes = json_decode(json_encode($object), TRUE);
 
-    /**
-     * Increment version.
-     *
-     * @param int $amount
-     * @return void
-     */
-    public function incrementVersion($amount = 1)
-    {
-        $this->version = $this->version + $amount;
+        $attributes['account_id'] = $attributes['id'];
+
+        $attributes['permissions'] = json_encode($attributes['permissions']);
+
+        unset($attributes['id']);
+        
+        return $this->newInstance($attributes);
     }
 
     /**
@@ -101,5 +156,4 @@ class Account extends Model
 
         return false;
     }
-
 }

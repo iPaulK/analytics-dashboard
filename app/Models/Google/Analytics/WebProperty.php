@@ -5,17 +5,17 @@ use Google_Model;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class EntityUserLink
+ * Class WebProperty
  * @package App\Models\Google\Analytics
  */
-class EntityUserLink extends Model
+class WebProperty extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'google_analytics_entity_user_link';
+    protected $table = 'google_analytics_webproperties';
 
     /**
      * The model's attributes.
@@ -33,24 +33,34 @@ class EntityUserLink extends Model
      */
     protected $fillable = [
         'version',
-        'userLinkId',
-        'accountId',
-        'selfLink',
+        'webpropertyId',
+
         'kind',
+        'selfLink',
+        'accountId',
+        'internalWebPropertyId',
+        'name',
+        'websiteUrl',
+        'level',
+        'profileCount',
+        'industryVertical',
+        'defaultProfileId',
         'permissions',
+        'starred',
+
         'created_at',
         'updated_at',
     ];
 
     /**
-     * Find last a account by userLinkId
+     * Find last a account by webPropertyId
      *
-     * @param string $userLinkId
+     * @param string $webPropertyId
      * @return User
      */
-    public static function findLastByUserLinkId($userLinkId)
+    public static function findLastByWebPropertyId($webPropertyId)
     {
-        return self::where('userLinkId', $userLinkId)
+        return self::where('webPropertyId', $webPropertyId)
             ->orderBy('version', 'desc')
             ->first();
     }
@@ -59,7 +69,7 @@ class EntityUserLink extends Model
      * Create a new account from Google Model.
      *
      * @param Google_Model $model
-     * @return EntityUserLink
+     * @return Account
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -70,8 +80,8 @@ class EntityUserLink extends Model
         // convert object to associative array
         $attributes = json_decode(json_encode($object), TRUE);
 
-        $attributes['userLinkId'] = $attributes['id'];
-
+        $attributes['webPropertyId'] = $attributes['id'];
+        
         $attributes['permissions'] = json_encode($attributes['permissions']);
 
         unset($attributes['id']);
@@ -82,13 +92,14 @@ class EntityUserLink extends Model
     /**
      * Compare models
      *
-     * @param EntityUserLink $entityUserLink
+     * @param Filter $webProperty
      * @return bool
      */
-    public function isDiff($entityUserLink)
+    public function isDiff($webProperty)
     {
-        // TODO
+        if (strcmp($this->name, $webProperty->name) !== 0) {
+            return true;
+        }
         return false;
     }
-
 }

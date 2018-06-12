@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\GoogleAnalytics;
+namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
 use App\Exceptions\GoogleServiceException;
@@ -11,19 +11,18 @@ use WoohooLabs\Yin\JsonApi\JsonApi;
 use App\Facades\Google;
 
 /**
- * Class WebPropertyAdWordsLinksController
+ * Class CustomDimensionsController
  * @package App\Http\Controllers
  */
-class WebPropertyAdWordsLinksController extends Controller
+class CustomDimensionsController extends Controller
 {
     /**
-     * Lists webProperty-user links for a given web property.
-     * (webpropertyUserLinks.listManagementWebpropertyUserLinks)
+     * Lists custom dimensions to which the user has access.
+     * (customDimensions.listManagementCustomDimensions)
      *
-     * @param string $accountId Account ID which the given web property belongs to.
-     * @param string $webPropertyId Web Property ID for the webProperty-user links
-     * to retrieve. Can either be a specific web property ID or '~all', which refers
-     * to all the web properties that user has access to.
+     * @param string $accountId Account ID for the custom dimensions to retrieve.
+     * @param string $webPropertyId Web property ID for the custom dimensions to
+     * retrieve.
      * @param Request $request
      *
      * @return json
@@ -33,8 +32,7 @@ class WebPropertyAdWordsLinksController extends Controller
         try {
             // returns instance of \Google_Service_Storage
             $analytics = Google::make('analytics');
-            // Get the list of webproperties for the authorized user.
-            $webproperties = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
+            $webproperties = $analytics->management_customDimensions->listManagementCustomDimensions($accountId, $webPropertyId);
         } catch (Google_Service_Exception $e) {
             throw new GoogleServiceException($e->getMessage());
         }
@@ -50,16 +48,13 @@ class WebPropertyAdWordsLinksController extends Controller
                 'kind' => $webproperty->getKind(),
                 'selfLink' => $webproperty->getSelfLink(),
                 'accountId' => $webproperty->getAccountId(),
-                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
+                'webPropertyId' => $webproperty->getWebPropertyId(),
                 'name' => $webproperty->getName(),
-                'websiteUrl' => $webproperty->getWebsiteUrl(),
-                'level' => $webproperty->getLevel(),
-                'profileCount' => $webproperty->getProfileCount(),
-                'industryVertical' => $webproperty->getIndustryVertical(),
-                'defaultProfileId' => $webproperty->getDefaultProfileId(),
+                'index' => $webproperty->getIndex(),
+                'scope' => $webproperty->getScope(),
+                'active' => $webproperty->getActive(),
                 'created' => $webproperty->getCreated(),
                 'updated' => $webproperty->getUpdated(),
-                'starred' => $webproperty->getStarred(),
                 'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
                 'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
             ];

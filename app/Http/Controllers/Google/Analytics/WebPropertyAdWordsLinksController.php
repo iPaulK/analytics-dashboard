@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\GoogleAnalytics;
+namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
 use App\Exceptions\GoogleServiceException;
@@ -11,18 +11,19 @@ use WoohooLabs\Yin\JsonApi\JsonApi;
 use App\Facades\Google;
 
 /**
- * Class CustomMetricsController
+ * Class WebPropertyAdWordsLinksController
  * @package App\Http\Controllers
  */
-class CustomMetricsController extends Controller
+class WebPropertyAdWordsLinksController extends Controller
 {
     /**
-     * Lists custom metrics to which the user has access.
-     * (customMetrics.listManagementCustomMetrics)
+     * Lists webProperty-user links for a given web property.
+     * (webpropertyUserLinks.listManagementWebpropertyUserLinks)
      *
-     * @param string $accountId Account ID for the custom metrics to retrieve.
-     * @param string $webPropertyId Web property ID for the custom metrics to
-     * retrieve.
+     * @param string $accountId Account ID which the given web property belongs to.
+     * @param string $webPropertyId Web Property ID for the webProperty-user links
+     * to retrieve. Can either be a specific web property ID or '~all', which refers
+     * to all the web properties that user has access to.
      * @param Request $request
      *
      * @return json
@@ -32,7 +33,8 @@ class CustomMetricsController extends Controller
         try {
             // returns instance of \Google_Service_Storage
             $analytics = Google::make('analytics');
-            $webproperties = $analytics->management_customMetrics->listManagementCustomMetrics($accountId, $webPropertyId);
+            // Get the list of webproperties for the authorized user.
+            $webproperties = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
         } catch (Google_Service_Exception $e) {
             throw new GoogleServiceException($e->getMessage());
         }
@@ -48,16 +50,16 @@ class CustomMetricsController extends Controller
                 'kind' => $webproperty->getKind(),
                 'selfLink' => $webproperty->getSelfLink(),
                 'accountId' => $webproperty->getAccountId(),
-                'webPropertyId' => $webproperty->getWebPropertyId(),
+                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
                 'name' => $webproperty->getName(),
-                'index' => $webproperty->getIndex(),
-                'scope' => $webproperty->getScope(),
-                'active' => $webproperty->getActive(),
-                'type' => $webproperty->getType(),
-                'min_value' => $webproperty->getMinValue(),
-                'max_value' => $webproperty->getMaxValue(),
+                'websiteUrl' => $webproperty->getWebsiteUrl(),
+                'level' => $webproperty->getLevel(),
+                'profileCount' => $webproperty->getProfileCount(),
+                'industryVertical' => $webproperty->getIndustryVertical(),
+                'defaultProfileId' => $webproperty->getDefaultProfileId(),
                 'created' => $webproperty->getCreated(),
                 'updated' => $webproperty->getUpdated(),
+                'starred' => $webproperty->getStarred(),
                 'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
                 'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
             ];

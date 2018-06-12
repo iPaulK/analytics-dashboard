@@ -2,11 +2,17 @@
 
 namespace App\Console\Commands\Google\Analytics;
 
-use Illuminate\Console\Command;
-use Exception;
+use App\Console\Commands\Google\GoogleCommand;
+use App\Facades\Google;
+use App\Models\Google\Analytics\Filter;
 
-class FiltersCommand extends Command
+class FiltersCommand extends GoogleCommand
 {
+    /**
+     * @var string
+     */
+    protected $cmd = 'google:analytics:filters';
+    
     /**
      * The name and signature of the console command.
      *
@@ -28,6 +34,23 @@ class FiltersCommand extends Command
      */
     public function handle()
     {
+        $analytics = Google::make('analytics');
+
+        $account_id = $this->argument('account_id');
+
+        $filters = $analytics->management_filters->listManagementFilters($account_id);
         
+        foreach ($filters->getItems() as $filter) {
+            $newFilter = (new Filter)->transform($filter);
+            
+            $lastFilter = Filter::findLastByFilterId($filter->getId());
+            
+            $version = $lastFilter ? $lastFilter->version + 1 : 1;
+            
+            if (!$lastFilter || ($lastFilter && $newFilter->isDiff($lastFilter))) {
+                $newFilter->version = $version;
+                $newFilter->save();
+            }
+        }
     }
 }

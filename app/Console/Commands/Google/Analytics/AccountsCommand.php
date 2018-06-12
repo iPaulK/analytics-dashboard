@@ -3,16 +3,16 @@
 namespace App\Console\Commands\Google\Analytics;
 
 use App\Facades\Google;
-use App\Models\Google\RequestQueue;
 use App\Models\Google\Analytics\Account;
-use Carbon\Carbon;
-use Elasticsearch\ClientBuilder;
-use Google_Service_Exception;
-use Google_Service_Analytics_Account;
-use Illuminate\Console\Command;
+use App\Console\Commands\Google\GoogleCommand;
 
-class AccountsCommand extends Command
+class AccountsCommand extends GoogleCommand
 {
+    /**
+     * @var string
+     */
+    protected $cmd = 'google:analytics:accounts';
+
     /**
      * The name and signature of the console command.
      *
@@ -35,56 +35,23 @@ class AccountsCommand extends Command
     public function handle()
     {
         $analytics = Google::make('analytics');
-        $managementAccounts = $analytics->management_accounts->listManagementAccounts();
+        $accounts = $analytics->management_accounts->listManagementAccounts();
 
-        foreach ($managementAccounts->getItems() as $managementAccount) {
-            $attributes = $this->prepareAttributes($managementAccount);
-            $newAccount = (new Account)->createAccount($attributes);
-
-            $lastAccount = Account::findLastByAccountId($managementAccount->getId());
-            if (!$lastAccount) {
-                $newAccount->save();
-            } else if ($lastAccount && $newAccount->isDiff($lastAccount)) {
-                $newAccount->version = $lastAccount->version + 1;
+        foreach ($accounts->getItems() as $account) {
+            $newAccount = (new Account)->transform($account);
+            $lastAccount = Account::findLastByAccountId($account->getId());
+            
+            $version = $lastAccount ? $lastAccount->version + 1 : 1;
+            if (!$lastAccount || ($lastAccount && $newAccount->isDiff($lastAccount))) {
+                $newAccount->version = $version;
                 $newAccount->save();
             }
 
-            $commands = [
-                [
-                    'command' => 'google:analytics:entityUserLinks',
-                    'params' => json_encode(['account_id' => $newAccount->account_id]),
-                    'status' => RequestQueue::STATUS_PENDING,
-                    'created_at' => Carbon::now()->toDateTimeString()
-                ],
-                [
-                    'command' => 'google:analytics:filters',
-                    'params' => json_encode(['account_id' => $newAccount->account_id]),
-                    'status' => RequestQueue::STATUS_PENDING,
-                    'created_at' => Carbon::now()->toDateTimeString()
-                ],
-                [
-                    'command' => 'google:analytics:webproperties',
-                    'params' => json_encode(['account_id' => $newAccount->account_id]),
-                    'status' => RequestQueue::STATUS_PENDING,
-                    'created_at' => Carbon::now()->toDateTimeString()
-                ],
-            ];
+            $params = ['account_id' => $account->getId()];
 
-            RequestQueue::insert($commands);
+            (new AccountUserLinksCommand)->addToQueue($params);
+            (new FiltersCommand)->addToQueue($params);
+            (new WebpropertiesCommand)->addToQueue($params);
         }
-    }
-
-    protected function prepareAttributes(Google_Service_Analytics_Account $account)
-    {
-        return [
-            'account_id' => $account->getId(),
-            'kind' => $account->getKind(),
-            'selfLink' => $account->getSelfLink(),
-            'name' => $account->getName(),
-            //'permissions' => $account->getPermissions(),
-            // 'created' => $account->getCreated(),
-            // 'updated' => $account->getUpdated(),
-            'starred' => $account->getStarred() ? true : false,
-        ];
     }
 }

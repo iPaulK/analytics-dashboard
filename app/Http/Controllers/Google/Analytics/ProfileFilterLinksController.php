@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\GoogleAnalytics;
+namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
 use App\Exceptions\GoogleServiceException;

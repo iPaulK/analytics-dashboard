@@ -5,17 +5,17 @@ use Google_Model;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class EntityUserLink
+ * Class Filter
  * @package App\Models\Google\Analytics
  */
-class EntityUserLink extends Model
+class Filter extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'google_analytics_entity_user_link';
+    protected $table = 'google_analytics_filters';
 
     /**
      * The model's attributes.
@@ -33,24 +33,25 @@ class EntityUserLink extends Model
      */
     protected $fillable = [
         'version',
-        'userLinkId',
         'accountId',
-        'selfLink',
+        'filterId',
         'kind',
-        'permissions',
+        'selfLink',
+        'name',
+        'type',
         'created_at',
         'updated_at',
     ];
 
     /**
-     * Find last a account by userLinkId
+     * Find last a account by filterId
      *
-     * @param string $userLinkId
+     * @param string $filterId
      * @return User
      */
-    public static function findLastByUserLinkId($userLinkId)
+    public static function findLastByFilterId($filterId)
     {
-        return self::where('userLinkId', $userLinkId)
+        return self::where('filterId', $filterId)
             ->orderBy('version', 'desc')
             ->first();
     }
@@ -59,7 +60,7 @@ class EntityUserLink extends Model
      * Create a new account from Google Model.
      *
      * @param Google_Model $model
-     * @return EntityUserLink
+     * @return Account
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -70,9 +71,7 @@ class EntityUserLink extends Model
         // convert object to associative array
         $attributes = json_decode(json_encode($object), TRUE);
 
-        $attributes['userLinkId'] = $attributes['id'];
-
-        $attributes['permissions'] = json_encode($attributes['permissions']);
+        $attributes['filterId'] = $attributes['id'];
 
         unset($attributes['id']);
         
@@ -82,13 +81,14 @@ class EntityUserLink extends Model
     /**
      * Compare models
      *
-     * @param EntityUserLink $entityUserLink
+     * @param Filter $filter
      * @return bool
      */
-    public function isDiff($entityUserLink)
+    public function isDiff($filter)
     {
-        // TODO
+        if (strcmp($this->name, $filter->name) !== 0) {
+            return true;
+        }
         return false;
     }
-
 }

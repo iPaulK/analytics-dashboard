@@ -2,11 +2,17 @@
 
 namespace App\Console\Commands\Google\Analytics;
 
+use App\Console\Commands\Google\GoogleCommand;
 use App\Facades\Google;
-use Illuminate\Console\Command;
+use App\Models\Google\Analytics\EntityUserLink;
 
-class AccountUserLinksCommand extends Command
+class AccountUserLinksCommand extends GoogleCommand
 {
+    /**
+     * @var string
+     */
+    protected $cmd = 'google:analytics:entityUserLinks';
+    
     /**
      * The name and signature of the console command.
      *
@@ -29,24 +35,21 @@ class AccountUserLinksCommand extends Command
     public function handle()
     {
         $analytics = Google::make('analytics');
-        $accountUserLinks = $analytics->management_accountUserLinks->listManagementAccountUserLinks($this->argument('account_id'));
+        $account_id = $this->argument('account_id');
+        $accountUserLinks = $analytics->management_accountUserLinks->listManagementAccountUserLinks($account_id);
 
         foreach ($accountUserLinks->getItems() as $accountUserLink) {
-            $attributes = $this->prepareAttributes($accountUserLink);
+            $newUserLink = (new EntityUserLink)->transform($accountUserLink);
+            $newUserLink->accountId = $account_id;
             
-            var_dump($attributes);
+            $lastUserLink = EntityUserLink::findLastByUserLinkId($accountUserLink->getId());
+            
+            $version = $lastUserLink ? $lastUserLink->version + 1 : 1;
+            
+            if (!$lastUserLink || ($lastUserLink && $newUserLink->isDiff($lastUserLink))) {
+                $newUserLink->version = $version;
+                $newUserLink->save();
+            }
         }
-    }
-
-    protected function prepareAttributes(Google_Service_Analytics_Account $accountUserLink)
-    {
-        return [
-            'id' => $accountUserLink->getId(),
-            'kind' => $accountUserLink->getKind(),
-            'selfLink' => $accountUserLink->getSelfLink(),
-            'entity' => $accountUserLink->getEntity(),
-            'userRef' => $accountUserLink->getUserRef(),
-            'permissions' => $accountUserLink->getPermissions(),
-        ];
     }
 }

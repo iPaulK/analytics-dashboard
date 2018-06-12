@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\GoogleSearchConsole;
+namespace App\Http\Controllers\Google\SearchConsole;
 
 use App\Http\Controllers\Controller;
 use App\Exceptions\GoogleServiceException;

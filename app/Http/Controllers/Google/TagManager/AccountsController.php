@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\GoogleAnalytics;
+namespace App\Http\Controllers\Google\TagManager;
 
 use App\Http\Controllers\Controller;
 use App\Exceptions\GoogleServiceException;
@@ -16,7 +16,7 @@ use App\Facades\Google;
  */
 class AccountsController extends Controller
 {
-    /**
+	  /**
      * Get the list of accounts
      *
      * @return json
@@ -25,30 +25,26 @@ class AccountsController extends Controller
     {
         try {
             // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
+            $tagManager = Google::make('tagManager');
             // Get the list of accounts for the authorized user.
-            $accounts = $analytics->management_accounts->listManagementAccounts();
+            $accounts = $tagManager->accounts->listAccounts();
         } catch (Google_Service_Exception $e) {
             throw new GoogleServiceException($e->getMessage());
         }
-        return $this->printResults($accounts->getItems());
+        return $this->printResults($accounts);
     }
 
-    protected function printResults($items)
+    protected function printResults($accounts)
     {
         $data = [];
-        foreach ($items as $account) {
+        foreach ($accounts as $account) {
             $data[] = [
-                'id' => $account->getId(),
-                'kind' => $account->getKind(),
-                'selfLink' => $account->getSelfLink(),
+                'accountId' => $account->getAccountId(),
+                'fingerprint' => $account->getFingerprint(),
                 'name' => $account->getName(),
-                'permissions' => $account->getPermissions(),
-                'created' => $account->getCreated(),
-                'updated' => $account->getUpdated(),
-                'starred' => $account->getStarred(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($account->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($account->getCreated()),
+                'path' => $account->getPath(),
+                'shareData' => $account->getShareData(),
+                'tagManagerUrl' => $account->getTagManagerUrl(),
             ];
         }
 
