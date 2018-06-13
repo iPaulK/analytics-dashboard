@@ -53,23 +53,47 @@ class WebProperty extends Model
     ];
 
     /**
-     * Find last a account by webPropertyId
+     * Find last a property by webPropertyId
      *
      * @param string $webPropertyId
      * @return User
      */
     public static function findLastByWebPropertyId($webPropertyId)
     {
-        return self::where('webPropertyId', $webPropertyId)
+        return self::where('webpropertyId', $webPropertyId)
             ->orderBy('version', 'desc')
             ->first();
     }
 
     /**
-     * Create a new account from Google Model.
+     * Find properties by accountId
+     *
+     * @param string $accountId
+     * @return \Illuminate\Support\Collection
+     */
+    public static function findByAccountId($accountId)
+    {
+        return self::where('accountId', $accountId)
+            ->orderBy('version', 'desc');
+    }
+    
+    /**
+     * Find properties by webpropertyId
+     *
+     * @param string $webpropertyId
+     * @return \Illuminate\Support\Collection
+     */
+    public static function findByWebPropertyId($webpropertyId)
+    {
+        return self::where('webpropertyId', $webpropertyId)
+            ->orderBy('version', 'desc');
+    }
+
+    /**
+     * Create a new property from Google Model.
      *
      * @param Google_Model $model
-     * @return Account
+     * @return WebProperty
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -80,7 +104,7 @@ class WebProperty extends Model
         // convert object to associative array
         $attributes = json_decode(json_encode($object), TRUE);
 
-        $attributes['webPropertyId'] = $attributes['id'];
+        $attributes['webpropertyId'] = $attributes['id'];
         
         $attributes['permissions'] = json_encode($attributes['permissions']);
 
@@ -92,7 +116,7 @@ class WebProperty extends Model
     /**
      * Compare models
      *
-     * @param Filter $webProperty
+     * @param WebProperty $webProperty
      * @return bool
      */
     public function isDiff($webProperty)
