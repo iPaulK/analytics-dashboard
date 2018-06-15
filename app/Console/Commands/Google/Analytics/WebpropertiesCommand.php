@@ -50,6 +50,13 @@ class WebpropertiesCommand extends GoogleCommand
                 $newWebproperty->version = $version;
                 $newWebproperty->save();
             }
+
+            $params = [
+                'accountId' => $webproperty->getAccountId(),
+                'webPropertyId' => $webproperty->getId(),
+            ];
+
+            (new ProfilesCommand)->addToQueue($params);
         }
     }
 }

@@ -50,7 +50,9 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
             $router->get('ga/accounts/{accountId}/webproperties', ['uses' => 'Google\Analytics\WebPropertiesController@index']);
             $router->get('ga/accounts/{accountId}/webproperties/{webPropertyId}/history', ['uses' => 'Google\Analytics\WebPropertiesController@history']);
 
-            $router->get('ga/account/{accountId}/webproperty/{webPropertyId}', ['uses' => 'Google\Analytics\ProfilesController@index']);
+            $router->get('ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles', ['uses' => 'Google\Analytics\ProfilesController@index']);
+            $router->get('ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history', ['uses' => 'Google\Analytics\ProfilesController@history']);
+
             $router->get('ga/webproperty-adwords-links/{accountId}/webproperty/{webPropertyId}', ['uses' => 'Google\Analytics\WebPropertyAdWordsLinksController@index']);
             $router->get('ga/custom-data-sources/{accountId}/webproperty/{webPropertyId}', ['uses' => 'Google\Analytics\CustomDataSourcesController@index']);
 
@@ -95,7 +97,9 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     $router->options('ga/accounts/{accountId}/webproperties', 'Google\Analytics\WebPropertiesController@options');
     $router->options('ga/accounts/{accountId}/webproperties/{webPropertyId}/history', 'Google\Analytics\WebPropertiesController@options');
     
-    $router->options('ga/account/{accountId}/webproperty/{webPropertyId}', 'Google\Analytics\ProfilesController@options');
+    $router->options('ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles', 'Google\Analytics\ProfilesController@options');
+    $router->options('ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history', 'Google\Analytics\ProfilesController@options');
+    
     $router->options('ga/webproperty-adwords-links/{accountId}/webproperty/{webPropertyId}', 'Google\Analytics\WebPropertyAdWordsLinksController@options');
     $router->options('ga/custom-data-sources/{accountId}/webproperty/{webPropertyId}', 'Google\Analytics\CustomDataSourcesController@options');
     $router->options('ga/custom-dimensions/{accountId}/webproperty/{webPropertyId}', 'Google\Analytics\CustomDimensionsController@options');

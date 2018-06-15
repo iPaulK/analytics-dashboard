@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\Google\Analytics\AccountUserLinksCommand::class,
         Commands\Google\Analytics\FiltersCommand::class,
         Commands\Google\Analytics\WebpropertiesCommand::class,
+        Commands\Google\Analytics\ProfilesCommand::class,
     ];
 
     /**
