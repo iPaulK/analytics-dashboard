@@ -36,7 +36,7 @@ class Account extends Model
      */
     protected $fillable = [
         'version',
-        'account_id',
+        'accountId',
         'kind',
         'selfLink',
         'name',
@@ -54,7 +54,7 @@ class Account extends Model
      */
     public static function findLastByAccountId($accountId)
     {
-        return self::where('account_id', $accountId)
+        return self::where('accountId', $accountId)
             ->orderBy('version', 'desc')
             ->first();
     }
@@ -67,7 +67,7 @@ class Account extends Model
      */
     public static function findByAccountId($accountId)
     {
-        return self::where('account_id', $accountId)
+        return self::where('accountId', $accountId)
             ->orderBy('version', 'desc');
     }
 
@@ -102,7 +102,7 @@ class Account extends Model
 
             $query->where(function (Builder $q) use ($value) {
                 return $q->orWhere('id', 'LIKE', '%' . $value . '%')
-                    ->orWhere('account_id', 'LIKE', '%' . $value . '%')
+                    ->orWhere('accountId', 'LIKE', '%' . $value . '%')
                     ->orWhere('name', 'LIKE', '%' . $value . '%');
             });
         }
@@ -125,7 +125,7 @@ class Account extends Model
         // convert object to associative array
         $attributes = json_decode(json_encode($object), TRUE);
 
-        $attributes['account_id'] = $attributes['id'];
+        $attributes['accountId'] = $attributes['id'];
 
         $attributes['permissions'] = json_encode($attributes['permissions']);
 

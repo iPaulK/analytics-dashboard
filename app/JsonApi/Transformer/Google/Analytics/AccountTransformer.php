@@ -78,8 +78,8 @@ class AccountTransformer extends AbstractResourceTransformer
             "version" => function ($account) {
                 return $account["version"];
             },
-            "account_id" => function ($account) {
-                return $account["account_id"];
+            "accountId" => function ($account) {
+                return $account["accountId"];
             },
             "name" => function ($account) {
                 return $account["name"];

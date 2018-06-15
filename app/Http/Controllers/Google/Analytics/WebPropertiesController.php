@@ -48,7 +48,7 @@ class WebPropertiesController extends Controller
     public function history(Request $request, JsonApi $jsonApi, $webPropertyId): ResponseInterface
     {
         /** @var \Illuminate\Support\Collection $properties */
-        $properties = WebProperty::findByWebPropertyId($id)->paginate();
+        $properties = WebProperty::findByWebPropertyId($webPropertyId)->paginate();
         return $jsonApi->respond()->ok($this->createWebPropertiesDocument(), $properties);
     }
 

@@ -41,7 +41,7 @@ class RequestQueueCommand extends Command
                     $command = $item->command;
                     $params = json_decode($item->params, true);
                     
-                    $result = Artisan::call('google:analytics:filters', $params);
+                    $result = Artisan::call($command, $params);
                     $item->status = RequestQueue::STATUS_SUCCESS;
                     $item->messages = 'Successfully!';
                 }  catch (Google_Service_Exception $e) {

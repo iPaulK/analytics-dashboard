@@ -32,7 +32,7 @@ class AccountsController extends Controller
         $accounts = Account::filter($request)
             ->latest('created_at')
             ->get()
-            ->unique('account_id');
+            ->unique('accountId');
         return $jsonApi->respond()->ok($this->createAccountsDocument(), $accounts);
     }
 
