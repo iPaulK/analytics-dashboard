@@ -57,7 +57,9 @@ class RequestQueueCommand extends Command
                 $item->save();
             }
         } else {
-            $exitCode = Artisan::call('google:analytics:accounts');
+            Artisan::call('google:analytics:accounts');
+            Artisan::call('google:tagmanager:accounts');
+            Artisan::call('google:searchconsole:sites');
         }
     }
 }

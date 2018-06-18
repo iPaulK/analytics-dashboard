@@ -74,6 +74,7 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
              |--------------------------------------------------------------------------
              */
             $router->get('gtm/accounts', ['uses' => 'Google\TagManager\AccountsController@index']);
+            $router->get('gtm/accounts/{accountId}/history', ['uses' => 'Google\TagManager\AccountsController@history']);
 
             /*
              |--------------------------------------------------------------------------
@@ -81,6 +82,7 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
              |--------------------------------------------------------------------------
              */
             $router->get('gsc/sites', ['uses' => 'Google\SearchConsole\SitesController@index']);
+            $router->get('gsc/sites/{siteUrl}/history', ['uses' => 'Google\SearchConsole\SitesController@history']);
         });
     });
 
@@ -113,7 +115,9 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
 
 
     $router->options('gtm/accounts', 'Google\TagManager\AccountsController@options');
+    $router->options('gtm/accounts/{accountId}/history', 'Google\TagManager\AccountsController@options');
 
 
     $router->options('gsc/sites', 'Google\SearchConsole\SitesController@options');
+    $router->options('gsc/sites/{siteUrl}/history', 'Google\SearchConsole\SitesController@options');
 });

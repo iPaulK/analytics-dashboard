@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
         Commands\Google\Analytics\FiltersCommand::class,
         Commands\Google\Analytics\WebpropertiesCommand::class,
         Commands\Google\Analytics\ProfilesCommand::class,
+
+        Commands\Google\TagManager\AccountsCommand::class,
+
+        Commands\Google\SearchConsole\SitesCommand::class,
     ];
 
     /**

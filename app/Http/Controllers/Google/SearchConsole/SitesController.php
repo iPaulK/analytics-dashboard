@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Google\SearchConsole;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\SearchConsole\Site;
+use App\JsonApi\Transformer\Google\SearchConsole\SiteTransformer;
+use App\JsonApi\Document\Google\SearchConsole\{
+    SiteDocument,
+    SitesDocument
+};
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
+
 
 /**
  * Class SitesController
@@ -16,40 +20,56 @@ use App\Facades\Google;
  */
 class SitesController extends Controller
 {
-	  /**
-     * Get the list of accounts
+    /**
+     * Get the list of sites
      *
-     * @return json
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index()
+    public function index(Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $webmasters = Google::make('webmasters');
-            $sites = $webmasters->sites->listSites();
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($sites);
+        /** @var \Illuminate\Support\Collection $sites */
+        $sites = Site::filter($request)
+            ->latest('created_at')
+            ->get()
+            ->unique('siteUrl');
+        return $jsonApi->respond()->ok($this->createSitesDocument(), $sites);
     }
 
-    protected function printResults($sites)
+    /**
+     * Get the list of sites
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $siteUrl
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $siteUrl): ResponseInterface
     {
-        $data = [];
-        foreach ($sites as $site) {
-            $data[] = [
-                'permissionLevel' => $site->getPermissionLevel(),
-                'siteUrl' => $site->getSiteUrl()
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $sites */
+        $sites = Site::findBySiteUrl($siteUrl)->paginate();
+        return $jsonApi->respond()->ok($this->createSitesDocument(), $sites);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create accounts document
+     *
+     * @return SitesDocument
+     */
+    protected function createSitesDocument()
+    {
+        return new SitesDocument($this->createSiteTransformer());
+    }
+
+    /**
+     * Create site resource transformer
+     *
+     * @return SiteTransformer
+     */
+    protected function createSiteTransformer()
+    {
+        return new SiteTransformer();
     }
 
     /**

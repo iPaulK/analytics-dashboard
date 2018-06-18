@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Google\TagManager;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\TagManager\Account;
+use App\JsonApi\Transformer\Google\TagManager\AccountTransformer;
+use App\JsonApi\Document\Google\TagManager\{
+    AccountDocument,
+    AccountsDocument
+};
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class AccountsController
@@ -16,45 +19,56 @@ use App\Facades\Google;
  */
 class AccountsController extends Controller
 {
-	  /**
+    /**
      * Get the list of accounts
      *
-     * @return json
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index()
+    public function index(Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $tagManager = Google::make('tagManager');
-            // Get the list of accounts for the authorized user.
-            $accounts = $tagManager->accounts->listAccounts();
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($accounts);
+        /** @var \Illuminate\Support\Collection $accounts */
+        $accounts = Account::filter($request)
+            ->latest('created_at')
+            ->get()
+            ->unique('accountId');
+        return $jsonApi->respond()->ok($this->createAccountsDocument(), $accounts);
     }
 
-    protected function printResults($accounts)
+    /**
+     * Get the list of accounts
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $siteUrl
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $siteUrl): ResponseInterface
     {
-        $data = [];
-        foreach ($accounts as $account) {
-            $data[] = [
-                'accountId' => $account->getAccountId(),
-                'fingerprint' => $account->getFingerprint(),
-                'name' => $account->getName(),
-                'path' => $account->getPath(),
-                'shareData' => $account->getShareData(),
-                'tagManagerUrl' => $account->getTagManagerUrl(),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $accounts */
+        $accounts = Account::findByAccountId($siteUrl)->paginate();
+        return $jsonApi->respond()->ok($this->createAccountsDocument(), $accounts);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create accounts document
+     *
+     * @return UsersDocument
+     */
+    protected function createAccountsDocument()
+    {
+        return new AccountsDocument($this->createAccountTransformer());
+    }
+
+    /**
+     * Create account resource transformer
+     *
+     * @return AccountTransformer
+     */
+    protected function createAccountTransformer()
+    {
+        return new AccountTransformer();
     }
 
     /**
