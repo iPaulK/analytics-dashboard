@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\Filter;
+use App\JsonApi\Transformer\Google\Analytics\FilterTransformer;
+use App\JsonApi\Document\Google\Analytics\FiltersDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class FiltersController
@@ -16,51 +16,61 @@ use App\Facades\Google;
  */
 class FiltersController extends Controller
 {
-    /**
-     * Lists all filters for an account (filters.listManagementFilters)
+  /**
+     * Get the list of filters
      *
-     * @param string $accountId Account ID to retrieve filters for.
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, Request $request)
+    public function index(Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-          // returns instance of \Google_Service_Storage
-          $analytics = Google::make('analytics');
-          $filters = $analytics->management_filters->listManagementFilters($accountId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($filters->getItems());
+        /** @var \Illuminate\Support\Collection $filters */
+        $filters = Filter::filter($request)
+            ->latest('created_at')
+            ->get()
+            ->unique('accountId');
+        return $jsonApi->respond()->ok($this->createFiltersDocument(), $filters);
     }
 
-    protected function printResults($filters)
-    {
-        $data = [];
-        foreach ($filters as $filter) {
-            $data[] = [
-                'id' => $filter->getId(),
-                'kind' => $filter->getKind(),
-                'selfLink' => $filter->getSelfLink(),
-                'accountId' => $filter->getAccountId(),
-                'name' => $filter->getName(),
-                'type' => $filter->getType(),
-                'created' => $filter->getCreated(),
-                'updated' => $filter->getUpdated(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($filter->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($filter->getCreated()),
-            ];
-        }
+    /**
+     * Get history changes
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $accountId
+     * @param string $filterId
+     * @return ResponseInterface
+     */
+    public function history(
+      Request $request,
+      JsonApi $jsonApi,
+      $accountId,
+      $filterId
+    ): ResponseInterface {
+        /** @var \Illuminate\Support\Collection $items */
+        $items = Filter::findByFilterId($filterId)->paginate();
+        return $jsonApi->respond()->ok($this->createFiltersDocument(), $items);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create filters document
+     *
+     * @return FiltersDocument
+     */
+    protected function createFiltersDocument()
+    {
+        return new FiltersDocument($this->createFilterTransformer());
+    }
+
+    /**
+     * Create filter resource transformer
+     *
+     * @return FilterTransformer
+     */
+    protected function createFilterTransformer()
+    {
+        return new FilterTransformer();
     }
 
     /**

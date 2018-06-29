@@ -37,17 +37,17 @@ class AccountsController extends Controller
     }
 
     /**
-     * Get the list of accounts
+     * Get history changes
      *
      * @param Request $request
      * @param JsonApi $jsonApi
-     * @param string $id
+     * @param string $accountId
      * @return ResponseInterface
      */
-    public function history(Request $request, JsonApi $jsonApi, $id): ResponseInterface
+    public function history(Request $request, JsonApi $jsonApi, $accountId): ResponseInterface
     {
         /** @var \Illuminate\Support\Collection $accounts */
-        $accounts = Account::findByAccountId($id)->paginate();
+        $accounts = Account::findByAccountId($accountId)->paginate();
         return $jsonApi->respond()->ok($this->createAccountsDocument(), $accounts);
     }
 

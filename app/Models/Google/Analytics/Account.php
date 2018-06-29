@@ -142,17 +142,28 @@ class Account extends Model
      */
     public function isDiff($account)
     {
+        // compare names
         if (strcmp($this->name, $account->name) !== 0) {
             return true;
         }
 
+        // compare starred
         /*if ($this->starred !== $account->starred) {
             return true;
         }*/
+        
+        // compare permissions
+        $newPermissions = json_decode($account->permissions, true);
+        $newEffective = $newPermissions['effective'];
 
-        /*if ($this->permissions != $account->permissions) {
+        $permissions = json_decode($this->permissions, true);
+        $effective = $permissions['effective'];
+
+        $effectiveDiff = array_merge(array_diff($effective, $newEffective), array_diff($newEffective, $effective));
+
+        if (count($effectiveDiff) > 0 ) {
             return true;
-        }*/
+        }
 
         return false;
     }

@@ -2,7 +2,9 @@
 namespace App\Models\Google\Analytics;
 
 use Google_Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 /**
  * Class Filter
@@ -47,7 +49,7 @@ class Filter extends Model
      * Find last a account by filterId
      *
      * @param string $filterId
-     * @return User
+     * @return Filter
      */
     public static function findLastByFilterId($filterId)
     {
@@ -57,10 +59,73 @@ class Filter extends Model
     }
 
     /**
+     * Find by filterId
+     *
+     * @param string $filterId
+     * @return Filter
+     */
+    public static function findByFilterId($filterId)
+    {
+        return self::where('filterId', $filterId)
+            ->orderBy('version', 'desc');
+    }
+
+    /**
+     * Find by accountId
+     *
+     * @param string $accountId
+     * @return Filter
+     */
+    public static function findByAccountId($accountId)
+    {
+        return self::where('accountId', $accountId)
+            ->orderBy('version', 'desc');
+    }
+
+    /**
+     * Apply request params to the builder instance.
+     *
+     * @param Request $request
+     * @param Builder|null $builder
+     * @param string|null $roleName
+     * @return \Illuminate\Support\Collection
+     */
+    public static function filter(Request $request, Builder $builder = null, $roleName = null)
+    {
+        $query = $builder ?? self::query();
+        $query = self::applyFilters($query, $request->input('filter'));
+        return $query;
+    }
+
+    /**
+     * @param Builder $query
+     * @param array|null $filters
+     * @return Builder
+     */
+    private static function applyFilters(Builder $query, ?array $filters)
+    {
+        if (!is_array($filters) || count($filters) < 1) {
+            return $query;
+        }
+
+        if (!empty($filters['query'])) {
+            $value = '%' . $filters['query'] . '%';
+
+            $query->where(function (Builder $q) use ($value) {
+                return $q->orWhere('id', 'LIKE', '%' . $value . '%')
+                    ->orWhere('name', 'LIKE', '%' . $value . '%')
+                    ->orWhere('filterId', 'LIKE', '%' . $value . '%');
+            });
+        }
+
+        return $query;
+    }
+
+    /**
      * Create a new account from Google Model.
      *
      * @param Google_Model $model
-     * @return Account
+     * @return Filter
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -87,6 +152,10 @@ class Filter extends Model
     public function isDiff($filter)
     {
         if (strcmp($this->name, $filter->name) !== 0) {
+            return true;
+        }
+
+        if (strcmp($this->type, $filter->type) !== 0) {
             return true;
         }
         return false;

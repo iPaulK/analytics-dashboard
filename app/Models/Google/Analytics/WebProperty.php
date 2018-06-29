@@ -121,7 +121,42 @@ class WebProperty extends Model
      */
     public function isDiff($webProperty)
     {
+        // compare names
         if (strcmp($this->name, $webProperty->name) !== 0) {
+            return true;
+        }
+
+        if (strcmp($this->websiteUrl, $webProperty->websiteUrl) !== 0) {
+            return true;
+        }
+
+        if (strcmp($this->level, $webProperty->level) !== 0) {
+            return true;
+        }
+
+        if (strcmp($this->industryVertical, $webProperty->industryVertical) !== 0) {
+            return true;
+        }
+        
+        if (strcmp($this->internalWebPropertyId, $webProperty->internalWebPropertyId) !== 0) {
+            return true;
+        }
+
+        // compare starred
+        /*if ($this->starred !== $account->starred) {
+            return true;
+        }*/
+        
+        // compare permissions
+        $newPermissions = json_decode($account->permissions, true);
+        $newEffective = $newPermissions['effective'];
+
+        $permissions = json_decode($this->permissions, true);
+        $effective = $permissions['effective'];
+
+        $effectiveDiff = array_merge(array_diff($effective, $newEffective), array_diff($newEffective, $effective));
+
+        if (count($effectiveDiff) > 0 ) {
             return true;
         }
         return false;
