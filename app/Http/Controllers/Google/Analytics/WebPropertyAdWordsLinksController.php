@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\EntityAdWordsLink;
+use App\JsonApi\Transformer\Google\Analytics\EntityAdWordsLinkTransformer;
+use App\JsonApi\Document\Google\Analytics\EntityAdWordsLinksDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class WebPropertyAdWordsLinksController
@@ -17,61 +17,57 @@ use App\Facades\Google;
 class WebPropertyAdWordsLinksController extends Controller
 {
     /**
-     * Lists webProperty-user links for a given web property.
-     * (webpropertyUserLinks.listManagementWebpropertyUserLinks)
+     * Lists webProperty-AdWords links for a given web property.
      *
-     * @param string $accountId Account ID which the given web property belongs to.
-     * @param string $webPropertyId Web Property ID for the webProperty-user links
-     * to retrieve. Can either be a specific web property ID or '~all', which refers
-     * to all the web properties that user has access to.
+     * @param string $webPropertyId
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, $webPropertyId, Request $request)
+    public function index($webPropertyId, Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
-            // Get the list of webproperties for the authorized user.
-            $webproperties = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($webproperties->getItems());
+        /** @var \Illuminate\Support\Collection $links */
+        $links = EntityAdWordsLink::findByWebPropertyId($webPropertyId)
+            ->latest('created_at')
+            ->get()
+            ->unique('entityAdWordsLinkId');
+        return $jsonApi->respond()->ok($this->createEntityAdWordsLinksDocument(), $links);
     }
 
-    protected function printResults($webproperties)
+    /**
+     * Get history of changes
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $webPropertyId
+     * @param string $entityAdWordsLinkId
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $webPropertyId, $entityAdWordsLinkId): ResponseInterface
     {
-        $data = [];
-        foreach ($webproperties as $webproperty) {
-            $data[] = [
-                'id' => $webproperty->getId(),
-                'kind' => $webproperty->getKind(),
-                'selfLink' => $webproperty->getSelfLink(),
-                'accountId' => $webproperty->getAccountId(),
-                'internalWebPropertyId' => $webproperty->getInternalWebPropertyId(),
-                'name' => $webproperty->getName(),
-                'websiteUrl' => $webproperty->getWebsiteUrl(),
-                'level' => $webproperty->getLevel(),
-                'profileCount' => $webproperty->getProfileCount(),
-                'industryVertical' => $webproperty->getIndustryVertical(),
-                'defaultProfileId' => $webproperty->getDefaultProfileId(),
-                'created' => $webproperty->getCreated(),
-                'updated' => $webproperty->getUpdated(),
-                'starred' => $webproperty->getStarred(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $links */
+        $links = EntityAdWordsLink::findByEntityAdWordsLinkId($entityAdWordsLinkId)->paginate();
+        return $jsonApi->respond()->ok($this->createEntityAdWordsLinksDocument(), $links);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create EntityAdWordsLinks document
+     *
+     * @return EntityAdWordsLinksDocument
+     */
+    protected function createEntityAdWordsLinksDocument()
+    {
+        return new EntityAdWordsLinksDocument($this->createEntityAdWordsLinkTransformer());
+    }
+
+    /**
+     * Create EntityAdWordsLink resource transformer
+     *
+     * @return EntityAdWordsLinkTransformer
+     */
+    protected function createEntityAdWordsLinkTransformer()
+    {
+        return new EntityAdWordsLinkTransformer();
     }
 
     /**

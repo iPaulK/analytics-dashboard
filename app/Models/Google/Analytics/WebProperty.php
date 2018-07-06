@@ -148,7 +148,7 @@ class WebProperty extends Model
         }*/
         
         // compare permissions
-        $newPermissions = json_decode($account->permissions, true);
+        $newPermissions = json_decode($webProperty->permissions, true);
         $newEffective = $newPermissions['effective'];
 
         $permissions = json_decode($this->permissions, true);

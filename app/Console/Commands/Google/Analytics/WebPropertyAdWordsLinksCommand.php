@@ -4,7 +4,7 @@ namespace App\Console\Commands\Google\Analytics;
 
 use App\Console\Commands\Google\GoogleCommand;
 use App\Facades\Google;
-use App\Models\Google\Analytics\Profile;
+use App\Models\Google\Analytics\EntityAdWordsLink;
 
 class WebPropertyAdWordsLinksCommand extends GoogleCommand
 {
@@ -42,12 +42,12 @@ class WebPropertyAdWordsLinksCommand extends GoogleCommand
 
         // returns instance of \Google_Service_Storage
         $analytics = Google::make('analytics');
-        $webpropertyUserLinks = $analytics->management_webpropertyUserLinks->listManagementWebpropertyUserLinks($accountId, $webPropertyId);
+        $webPropertyAdWordsLinks = $analytics->management_webPropertyAdWordsLinks->listManagementWebPropertyAdWordsLinks($accountId, $webPropertyId);
         
-        foreach ($webpropertyUserLinks->getItems() as $webpropertyUserLink) {
-            $new = (new EntityUserLink)->transform($webpropertyUserLink);
+        foreach ($webPropertyAdWordsLinks->getItems() as $webPropertyAdWordsLink) {
+            $new = (new EntityAdWordsLink)->transform($webPropertyAdWordsLink);
             
-            $last = EntityUserLink::findLastByWebpropertyUserLinkId($webpropertyUserLink->getId());
+            $last = EntityAdWordsLink::findLastByEntityAdWordsLinkId($webPropertyAdWordsLink->getId());
             
             $version = $last ? $last->version + 1 : 1;
             

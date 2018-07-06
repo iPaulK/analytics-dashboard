@@ -57,6 +57,7 @@ class WebpropertiesCommand extends GoogleCommand
             ];
 
             (new ProfilesCommand)->addToQueue($params);
+            (new WebPropertyAdWordsLinksCommand)->addToQueue($params);
         }
     }
 }
