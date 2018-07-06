@@ -38,14 +38,12 @@ class FiltersController extends Controller
      *
      * @param Request $request
      * @param JsonApi $jsonApi
-     * @param string $accountId
      * @param string $filterId
      * @return ResponseInterface
      */
     public function history(
       Request $request,
       JsonApi $jsonApi,
-      $accountId,
       $filterId
     ): ResponseInterface {
         /** @var \Illuminate\Support\Collection $items */
