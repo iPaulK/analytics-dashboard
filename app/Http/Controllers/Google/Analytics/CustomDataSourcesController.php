@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\CustomDataSource;
+use App\JsonApi\Transformer\Google\Analytics\CustomDataSourceTransformer;
+use App\JsonApi\Document\Google\Analytics\CustomDataSourcesDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class CustomDataSourcesController
@@ -17,54 +17,56 @@ use App\Facades\Google;
 class CustomDataSourcesController extends Controller
 {
     /**
-     * List custom data sources to which the user has access.
-     * (customDataSources.listManagementCustomDataSources)
+     * Get the list of Custom Data Sources
      *
-     * @param string $accountId Account Id for the custom data sources to retrieve.
-     * @param string $webPropertyId Web property Id for the custom data sources to
-     * retrieve.
+     * @param string $webPropertyId
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, $webPropertyId, Request $request)
+    public function index($webPropertyId, Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
-            // Get the list of webproperties for the authorized user.
-            $webproperties = $analytics->management_customDataSources->listManagementCustomDataSources($accountId, $webPropertyId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($webproperties->getItems());
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomDataSource::findByWebPropertyId($webPropertyId)
+            ->latest('created_at')
+            ->get()
+            ->unique('customDataSourceId');
+        return $jsonApi->respond()->ok($this->createCustomDataSourcesDocument(), $data);
     }
 
-    protected function printResults($webproperties)
+    /**
+     * Get the list of Custom Data Sources
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $customDataSourceId
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $customDataSourceId): ResponseInterface
     {
-        $data = [];
-        foreach ($webproperties as $webproperty) {
-            $data[] = [
-                'id' => $webproperty->getId(),
-                'kind' => $webproperty->getKind(),
-                'selfLink' => $webproperty->getSelfLink(),
-                'accountId' => $webproperty->getAccountId(),
-                'name' => $webproperty->getName(),
-                'created' => $webproperty->getCreated(),
-                'updated' => $webproperty->getUpdated(),
-                'starred' => $webproperty->getStarred(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomDataSource::findByCustomDataSourceId($customDataSourceId)->paginate();
+        return $jsonApi->respond()->ok($this->createCustomDataSourcesDocument(), $data);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create links document
+     *
+     * @return CustomDataSourcesDocument
+     */
+    protected function createCustomDataSourcesDocument()
+    {
+        return new CustomDataSourcesDocument($this->createCustomDataSourceTransformer());
+    }
+
+    /**
+     * Create account resource transformer
+     *
+     * @return CustomDataSourceTransformer
+     */
+    protected function createCustomDataSourceTransformer()
+    {
+        return new CustomDataSourceTransformer();
     }
 
     /**
