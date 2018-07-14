@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\CustomDimension;
+use App\JsonApi\Transformer\Google\Analytics\CustomDimensionTransformer;
+use App\JsonApi\Document\Google\Analytics\CustomDimensionsDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class CustomDimensionsController
@@ -17,56 +17,56 @@ use App\Facades\Google;
 class CustomDimensionsController extends Controller
 {
     /**
-     * Lists custom dimensions to which the user has access.
-     * (customDimensions.listManagementCustomDimensions)
+     * Get the list of Custom Dimensions
      *
-     * @param string $accountId Account ID for the custom dimensions to retrieve.
-     * @param string $webPropertyId Web property ID for the custom dimensions to
-     * retrieve.
+     * @param string $webPropertyId
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, $webPropertyId, Request $request)
+    public function index($webPropertyId, Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
-            $webproperties = $analytics->management_customDimensions->listManagementCustomDimensions($accountId, $webPropertyId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($webproperties->getItems());
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomDimension::findByWebPropertyId($webPropertyId)
+            ->latest('created_at')
+            ->get()
+            ->unique('customDimensionId');
+        return $jsonApi->respond()->ok($this->createCustomDimensionsDocument(), $data);
     }
 
-    protected function printResults($webproperties)
+    /**
+     * Get the list of Custom Dimensions
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $customDimensionId
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $customDimensionId): ResponseInterface
     {
-        $data = [];
-        foreach ($webproperties as $webproperty) {
-            $data[] = [
-                'id' => $webproperty->getId(),
-                'kind' => $webproperty->getKind(),
-                'selfLink' => $webproperty->getSelfLink(),
-                'accountId' => $webproperty->getAccountId(),
-                'webPropertyId' => $webproperty->getWebPropertyId(),
-                'name' => $webproperty->getName(),
-                'index' => $webproperty->getIndex(),
-                'scope' => $webproperty->getScope(),
-                'active' => $webproperty->getActive(),
-                'created' => $webproperty->getCreated(),
-                'updated' => $webproperty->getUpdated(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomDimension::findByCustomDimensionId($customDimensionId)->paginate();
+        return $jsonApi->respond()->ok($this->createCustomDimensionsDocument(), $data);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create links document
+     *
+     * @return CustomDimensionsDocument
+     */
+    protected function createCustomDimensionsDocument()
+    {
+        return new CustomDimensionsDocument($this->createCustomDimensionTransformer());
+    }
+
+    /**
+     * Create account resource transformer
+     *
+     * @return CustomDimensionTransformer
+     */
+    protected function createCustomDimensionTransformer()
+    {
+        return new CustomDimensionTransformer();
     }
 
     /**

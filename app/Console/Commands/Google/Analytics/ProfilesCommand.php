@@ -53,6 +53,15 @@ class ProfilesCommand extends GoogleCommand
                 $newProfile->version = $version;
                 $newProfile->save();
             }
+
+            $params = [
+                'accountId' => $profile->getAccountId(),
+                'webPropertyId' => $profile->getWebPropertyId(),
+                'profileId' => $profile->getId(),
+            ];
+
+            (new GoalsCommand)->addToQueue($params);
+            (new ProfileFilterLinksCommand)->addToQueue($params);
         }
     }
 }

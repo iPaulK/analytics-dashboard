@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\CustomMetric;
+use App\JsonApi\Transformer\Google\Analytics\CustomMetricTransformer;
+use App\JsonApi\Document\Google\Analytics\CustomMetricsDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class CustomMetricsController
@@ -17,59 +17,57 @@ use App\Facades\Google;
 class CustomMetricsController extends Controller
 {
     /**
-     * Lists custom metrics to which the user has access.
-     * (customMetrics.listManagementCustomMetrics)
+     * Get the list of Custom Metrics
      *
-     * @param string $accountId Account ID for the custom metrics to retrieve.
-     * @param string $webPropertyId Web property ID for the custom metrics to
-     * retrieve.
+     * @param string $webPropertyId
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, $webPropertyId, Request $request)
+    public function index($webPropertyId, Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
-            $webproperties = $analytics->management_customMetrics->listManagementCustomMetrics($accountId, $webPropertyId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($webproperties->getItems());
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomMetric::findByWebPropertyId($webPropertyId)
+            ->latest('created_at')
+            ->get()
+            ->unique('customMetricId');
+        return $jsonApi->respond()->ok($this->createCustomMetricsDocument(), $data);
     }
 
-    protected function printResults($webproperties)
+    /**
+     * Get the list of Custom Metrics
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $customMetricId
+     * @param string $webPropertyId
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $customMetricId, $webPropertyId): ResponseInterface
     {
-        $data = [];
-        foreach ($webproperties as $webproperty) {
-            $data[] = [
-                'id' => $webproperty->getId(),
-                'kind' => $webproperty->getKind(),
-                'selfLink' => $webproperty->getSelfLink(),
-                'accountId' => $webproperty->getAccountId(),
-                'webPropertyId' => $webproperty->getWebPropertyId(),
-                'name' => $webproperty->getName(),
-                'index' => $webproperty->getIndex(),
-                'scope' => $webproperty->getScope(),
-                'active' => $webproperty->getActive(),
-                'type' => $webproperty->getType(),
-                'min_value' => $webproperty->getMinValue(),
-                'max_value' => $webproperty->getMaxValue(),
-                'created' => $webproperty->getCreated(),
-                'updated' => $webproperty->getUpdated(),
-                'isUpdatedLastDay' => $this->isUpdatedLastDay($webproperty->getUpdated()),
-                'isCreatedLastDay' => $this->isCreatedLastDay($webproperty->getCreated()),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $data */
+        $data = CustomMetric::findByCustomMetricIdAndWebPropertyId($customMetricId, $webPropertyId)->paginate();
+        return $jsonApi->respond()->ok($this->createCustomMetricsDocument(), $data);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create links document
+     *
+     * @return CustomMetricsDocument
+     */
+    protected function createCustomMetricsDocument()
+    {
+        return new CustomMetricsDocument($this->createCustomMetricTransformer());
+    }
+
+    /**
+     * Create account resource transformer
+     *
+     * @return CustomMetricTransformer
+     */
+    protected function createCustomMetricTransformer()
+    {
+        return new CustomMetricTransformer();
     }
 
     /**

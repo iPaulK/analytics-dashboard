@@ -21,6 +21,10 @@ class Kernel extends ConsoleKernel
         Commands\Google\Analytics\ProfilesCommand::class,
         Commands\Google\Analytics\WebPropertyAdWordsLinksCommand::class,
         Commands\Google\Analytics\CustomDataSourcesCommand::class,
+        Commands\Google\Analytics\CustomDimensionsCommand::class,
+        Commands\Google\Analytics\CustomMetricsCommand::class,
+        Commands\Google\Analytics\GoalsCommand::class,
+        Commands\Google\Analytics\ProfileFilterLinksCommand::class,
 
         Commands\Google\TagManager\AccountsCommand::class,
 

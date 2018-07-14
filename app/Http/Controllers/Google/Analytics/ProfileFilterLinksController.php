@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Google\Analytics;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\GoogleServiceException;
-use Google_Service_Exception;
+use App\Models\Google\Analytics\ProfileFilterLink;
+use App\JsonApi\Transformer\Google\Analytics\ProfileFilterLinkTransformer;
+use App\JsonApi\Document\Google\Analytics\ProfileFilterLinksDocument;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Facades\Google;
 
 /**
  * Class ProfileFilterLinksController
@@ -17,53 +17,57 @@ use App\Facades\Google;
 class ProfileFilterLinksController extends Controller
 {
     /**
-     * Lists all profile filter links for a profile.
-     * (profileFilterLinks.listManagementProfileFilterLinks)
+     * Get the list of Profile Filter Links
      *
-     * @param string $accountId Account ID to retrieve profile filter links for.
-     * @param string $webPropertyId Web property Id for profile filter links for.
-     * Can either be a specific web property ID or '~all', which refers to all the
-     * web properties that user has access to.
-     * @param string $profileId Profile ID to retrieve filter links for. Can either
-     * be a specific profile ID or '~all', which refers to all the profiles that
-     * user has access to.
+     * @param string $profileId
      * @param Request $request
-     *
-     * @return json
+     * @param JsonApi $jsonApi
+     * @return ResponseInterface
      */
-    public function index($accountId, $webPropertyId, $profileId, Request $request)
+    public function index($profileId, Request $request, JsonApi $jsonApi): ResponseInterface
     {
-        try {
-            // returns instance of \Google_Service_Storage
-            $analytics = Google::make('analytics');
-            $profileFilterLinks = $analytics->management_profileFilterLinks->listManagementProfileFilterLinks($accountId, $webPropertyId, $profileId);
-        } catch (Google_Service_Exception $e) {
-            throw new GoogleServiceException($e->getMessage());
-        }
-        return $this->printResults($profileFilterLinks->getItems());
+        /** @var \Illuminate\Support\Collection $data */
+        $data = ProfileFilterLink::findByProfileId($profileId)
+            ->latest('created_at')
+            ->get()
+            ->unique('profileId');
+        return $jsonApi->respond()->ok($this->createProfileFilterLinksDocument(), $data);
     }
 
-    protected function printResults($profileFilterLinks)
+    /**
+     * Get the list of Profile Filter Links
+     *
+     * @param Request $request
+     * @param JsonApi $jsonApi
+     * @param string $profileFilterLinkId
+     * @param string $profileId
+     * @return ResponseInterface
+     */
+    public function history(Request $request, JsonApi $jsonApi, $profileFilterLinkId, $profileId): ResponseInterface
     {
-        $data = [];
-        foreach ($profileFilterLinks as $profileFilterLink) {
-            $data[] = [
-                'id' => $profileFilterLink->getId(),
-                'kind' => $profileFilterLink->getKind(),
-                'selfLink' => $profileFilterLink->getSelfLink(),
-                'rank' => $profileFilterLink->getRank(),
-                'profileRef' => $profileFilterLink->getProfileRef(),
-                'filterRef' => $profileFilterLink->getFilterRef(),
-            ];
-        }
+        /** @var \Illuminate\Support\Collection $data */
+        $data = ProfileFilterLink::findByProfileFilterLinkIdAndProfileId($profileFilterLinkId, $profileId)->paginate();
+        return $jsonApi->respond()->ok($this->createProfileFilterLinksDocument(), $data);
+    }
 
-        $result = [
-          'jsonapi' => [
-            'version' => "1.0"
-          ],
-          'data' => $data,
-        ];
-        return json_encode($result);
+    /**
+     * Create links document
+     *
+     * @return ProfileFilterLinksDocument
+     */
+    protected function createProfileFilterLinksDocument()
+    {
+        return new ProfileFilterLinksDocument($this->createProfileFilterLinkTransformer());
+    }
+
+    /**
+     * Create account resource transformer
+     *
+     * @return ProfileFilterLinkTransformer
+     */
+    protected function createProfileFilterLinkTransformer()
+    {
+        return new ProfileFilterLinkTransformer();
     }
 
     /**

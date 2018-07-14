@@ -44,7 +44,6 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
              | GoogleAnalytics
              |--------------------------------------------------------------------------
              */
-
             $router->group(['prefix' => 'ga'], function ($router) {
                 // Accounts
                 $router->get('accounts', [
@@ -64,16 +63,6 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
                 $router->get('accounts/{accountId}/webproperties/{webPropertyId}/history', [
                     'uses' => 'Google\Analytics\WebPropertiesController@history'
                 ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/history
-
-
-                // Profiles
-                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles', [
-                    'uses' => 'Google\Analytics\ProfilesController@index'
-                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles
-                
-                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history', [
-                    'uses' => 'Google\Analytics\ProfilesController@history'
-                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history
 
 
                 // Account user links
@@ -113,28 +102,74 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
 
                 $router->get('accounts/{accountId}/webproperty/{webPropertyId}/custom-data-sources/{customDataSourceId}/history', [
                     'uses' => 'Google\Analytics\CustomDataSourcesController@history'
-                ]); // GET /v1/accounts/{accountId}/webproperty/{webPropertyId}/custom-data-sources/{customDataSourceId}/history
-            });
+                ]); //GET /v1/ga/accounts/{accountId}/webproperty/{webPropertyId}/custom-data-sources/{customDataSourceId}/history
+            
 
-
-                $router->get('ga/custom-dimensions/{accountId}/webproperty/{webPropertyId}', [
+                // Custom Dimensions
+                $router->get('accounts/{accountId}/webproperty/{webPropertyId}/custom-dimensions', [
                     'uses' => 'Google\Analytics\CustomDimensionsController@index'
-                ]);
-                $router->get('ga/custom-metrics/{accountId}/webproperty/{webPropertyId}', [
+                ]); // GET /v1/ga/accounts/{accountId}/webproperty/{webPropertyId}/custom-dimensions
+
+                $router->get('accounts/{accountId}/webproperty/{webPropertyId}/custom-dimensions/{customDimensionId}/history', [
+                    'uses' => 'Google\Analytics\CustomDimensionsController@history'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperty/{webPropertyId}/custom-dimensions/{customDimensionId}/history
+
+
+                // Custom Metrics
+                $router->get('accounts/{accountId}/webproperty/{webPropertyId}/custom-metrics', [
                     'uses' => 'Google\Analytics\CustomMetricsController@index'
-                ]);
-                $router->get('ga/goals/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', [
-                    'uses' => 'Google\Analytics\GoalsController@index'
-                ]);
-                $router->get('ga/profile-filter-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', [
-                    'uses' => 'Google\Analytics\ProfileFilterLinksController@index'
-                ]);
-                $router->get('ga/profile-user-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', [
-                    'uses' => 'Google\Analytics\ProfileUserLinksController@index'
-                ]);
-                $router->get('ga/webproperty-user-links/{accountId}/webproperty/{webPropertyId}', [
+                ]); // GET /v1/ga/accounts/{accountId}/webproperty/{webPropertyId}/custom-metrics
+
+                $router->get('accounts/{accountId}/webproperty/{webPropertyId}/custom-metrics/{customMetricId}/history', [
+                    'uses' => 'Google\Analytics\CustomMetricsController@history'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperty/{webPropertyId}/custom-metrics/{customMetricId}/history
+
+                
+                // Webproperty User Links
+                /*$router->get('accounts/{accountId}/webproperty/{webPropertyId}/webproperty-user-links', [
                     'uses' => 'Google\Analytics\WebPropertyUserLinksController@index'
                 ]);
+
+                $router->get('accounts/{accountId}/webproperty/{webPropertyId}/webproperty-user-links/{customMetricId}/history', [
+                    'uses' => 'Google\Analytics\WebPropertyUserLinksController@index'
+                ]);*/
+
+
+                // Profiles
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles', [
+                    'uses' => 'Google\Analytics\ProfilesController@index'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles
+                
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history', [
+                    'uses' => 'Google\Analytics\ProfilesController@history'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/history
+
+
+                // Goals
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals', [
+                    'uses' => 'Google\Analytics\GoalsController@index'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals
+
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals/{goalId}/history', [
+                    'uses' => 'Google\Analytics\GoalsController@history'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals/{goalId}/history
+
+
+                // Profile Filter Links
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profile-filter-links', [
+                    'uses' => 'Google\Analytics\ProfileFilterLinksController@index'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profile-filter-links
+
+                $router->get('accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profile-filter-links/{profileLinkId}/history', [
+                    'uses' => 'Google\Analytics\ProfileFilterLinksController@history'
+                ]); // GET /v1/ga/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profile-filter-links/{profileLinkId}/history
+                
+
+                // Profile User Links
+                // $router->get('ga/profile-user-links/{accountId}/webproperty/{webPropertyId}/profile/{profileId}', [
+                //     'uses' => 'Google\Analytics\ProfileUserLinksController@index'
+                // ]);
+            });
 
             /*
              |--------------------------------------------------------------------------
