@@ -46,7 +46,7 @@ class CustomDimensionsCommand extends GoogleCommand
         foreach ($customDimensions->getItems() as $customDimension) {
             $new = (new CustomDimension)->transform($customDimension);
             
-            $last = CustomDimension::findLastByCustomDimensionId($customDimension->getId());
+            $last = CustomDimension::findLastByCustomDimensionIdAndWebPropertyId($customDimension->getId(), $webPropertyId);
             
             $version = $last ? $last->version + 1 : 1;
             

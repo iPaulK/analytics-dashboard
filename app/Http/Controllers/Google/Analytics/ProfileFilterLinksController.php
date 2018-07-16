@@ -39,14 +39,14 @@ class ProfileFilterLinksController extends Controller
      *
      * @param Request $request
      * @param JsonApi $jsonApi
-     * @param string $profileFilterLinkId
+     * @param string $profileLinkId
      * @param string $profileId
      * @return ResponseInterface
      */
-    public function history(Request $request, JsonApi $jsonApi, $profileFilterLinkId, $profileId): ResponseInterface
+    public function history(Request $request, JsonApi $jsonApi, $profileLinkId, $profileId): ResponseInterface
     {
         /** @var \Illuminate\Support\Collection $data */
-        $data = ProfileFilterLink::findByProfileFilterLinkIdAndProfileId($profileFilterLinkId, $profileId)->paginate();
+        $data = ProfileFilterLink::findByProfileFilterLinkIdAndProfileId($profileLinkId, $profileId)->paginate();
         return $jsonApi->respond()->ok($this->createProfileFilterLinksDocument(), $data);
     }
 

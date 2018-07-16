@@ -59,28 +59,33 @@ class CustomDimension extends Model
     }
 
     /**
-     * Find last by customDimensionId
+     * Find last by customDimensionId and webPropertyId
      *
      * @param string $customDimensionId
+     * @param string $webPropertyId
      * @return \Illuminate\Support\Collection
      */
-    public static function findLastByCustomDimensionId($customDimensionId)
+    public static function findLastByCustomDimensionIdAndWebPropertyId($customDimensionId, $webPropertyId)
     {
-        return self::where('customDimensionId', $customDimensionId)
-            ->orderBy('version', 'desc')
-            ->first();
+        return self::where([
+            ['customDimensionId', '=', $customDimensionId],
+            ['webPropertyId', '=', $webPropertyId]
+        ])->orderBy('version', 'desc')->first();
     }
 
     /**
-     * Find by customDimensionId
+     * Find by customDimensionId and webPropertyId
      *
      * @param string $customDimensionId
+     * @param string $webPropertyId
      * @return \Illuminate\Support\Collection
      */
-    public static function findByCustomDimensionId($customDimensionId)
+    public static function findByCustomDimensionIdAndWebPropertyId($customDimensionId, $webPropertyId)
     {
-        return self::where('customDimensionId', $customDimensionId)
-            ->orderBy('version', 'desc');
+        return self::where([
+            ['customDimensionId', '=', $customDimensionId],
+            ['webPropertyId', '=', $webPropertyId]
+        ])->orderBy('version', 'desc');
     }
 
     /**

@@ -40,12 +40,13 @@ class CustomDimensionsController extends Controller
      * @param Request $request
      * @param JsonApi $jsonApi
      * @param string $customDimensionId
+     * @param string $webPropertyId
      * @return ResponseInterface
      */
-    public function history(Request $request, JsonApi $jsonApi, $customDimensionId): ResponseInterface
+    public function history(Request $request, JsonApi $jsonApi, $customDimensionId, $webPropertyId): ResponseInterface
     {
         /** @var \Illuminate\Support\Collection $data */
-        $data = CustomDimension::findByCustomDimensionId($customDimensionId)->paginate();
+        $data = CustomDimension::findByCustomDimensionIdAndWebPropertyId($customDimensionId, $webPropertyId)->paginate();
         return $jsonApi->respond()->ok($this->createCustomDimensionsDocument(), $data);
     }
 
