@@ -1,6 +1,7 @@
 <?php
 namespace App\Models\Google\Analytics;
 
+use App\Models\User;
 use Google_Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,16 @@ class Account extends Model
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * Define an inverse many-to-many relationship with User.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'ga_permissions', 'account_id', 'user_id', 'accountId', 'id');
+    }
 
     /**
      * Find last a account by accountId

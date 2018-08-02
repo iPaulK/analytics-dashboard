@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Role;
+use App\Models\Google\Analytics\Account;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -61,6 +62,16 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Define an inverse many-to-many relationship with Account.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function accounts()
+    {
+        return $this->belongsToMany(Account::class, 'ga_permissions', 'user_id', 'account_id', 'id', 'accountId');
     }
 
     /**
