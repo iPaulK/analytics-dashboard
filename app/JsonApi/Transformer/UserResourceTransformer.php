@@ -101,7 +101,13 @@ class UserResourceTransformer extends AbstractResourceTransformer
                     return $user["updated_at"]->format(DATE_ISO8601);
                 }
                 return null;
-            }
+            },
+            'account_ids' => function ($domainObject) {
+                foreach ($domainObject->accounts as $account) {
+                    $accountIds[] = $account->accountId;
+                }
+                return (isset($accountIds)) ? $accountIds : null;
+            },
         ];
     }
 

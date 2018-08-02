@@ -16,6 +16,7 @@ use App\Models\{
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
+use App\Models\Permissions\Analytics as AnalyticsPermissions;
 
 /**
  * Class UsersController
@@ -84,6 +85,20 @@ class UsersController extends Controller
         // Hydrating the retrieved user object from the request
         $user = $jsonApi->hydrate(new UserHydrator(), $user);
         $user->save();
+
+        if (isset($request->get('data')['attributes']['accounts_id'])) {
+            AnalyticsPermissions::where('user_id', $id)->delete();
+            foreach ($request->get('data')['attributes']['accounts_id'] as $accountId) {
+                $gaPermissions[] = [
+                    'user_id' => $id,
+                    'account_id' => $accountId,
+                ];
+            }
+            if (isset($gaPermissions)) {
+                AnalyticsPermissions::insert($gaPermissions);
+            }
+        }
+
         // Returns a "200 Ok" response
         return $jsonApi->respond()->ok($this->createUserDocument(), $user);
     }
