@@ -82,25 +82,32 @@ class UsersController extends Controller
     public function update(Request $request, JsonApi $jsonApi, $id): ResponseInterface
     {
         $user = User::findOrFail($id);
+
+        $accounts = $this->getAccountsIds($request);
+
         // Hydrating the retrieved user object from the request
         $user = $jsonApi->hydrate(new UserHydrator(), $user);
+        $user->accounts()->sync($accounts);
         $user->save();
-
-        if (isset($request->get('data')['attributes']['accounts_id'])) {
-            AnalyticsPermissions::where('user_id', $id)->delete();
-            foreach ($request->get('data')['attributes']['accounts_id'] as $accountId) {
-                $gaPermissions[] = [
-                    'user_id' => $id,
-                    'account_id' => $accountId,
-                ];
-            }
-            if (isset($gaPermissions)) {
-                AnalyticsPermissions::insert($gaPermissions);
-            }
-        }
 
         // Returns a "200 Ok" response
         return $jsonApi->respond()->ok($this->createUserDocument(), $user);
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function getAccountsIds(Request $request)
+    {
+        $accounts = [];
+        $data = $request->input('data');
+        if (isset($data['attributes']['accounts_id']) && is_array($data['attributes']['accounts_id'])) {
+            foreach ($data['attributes']['accounts_id'] as $accountId) {
+                $accounts[] = $accountId;
+            }
+        }
+        return $accounts;
     }
 
     /**

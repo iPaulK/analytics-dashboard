@@ -40,6 +40,7 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
         'last_name',
         'email',
         'active',
+        'account_ids',
         'created_at',
         'updated_at'
     ];
