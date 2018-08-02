@@ -16,7 +16,6 @@ use App\Models\{
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
-use App\Models\Permissions\Analytics as AnalyticsPermissions;
 
 /**
  * Class UsersController
