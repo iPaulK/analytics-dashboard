@@ -38,17 +38,20 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
             $router->post('users', 'UsersController@create');
             $router->put('users/{id}', 'UsersController@update');
             $router->delete('users/{id}', 'UsersController@delete');
+        });
 
-            /*
-             |--------------------------------------------------------------------------
-             | GoogleAnalytics
-             |--------------------------------------------------------------------------
-             */
-            $router->group(['prefix' => 'ga'], function ($router) {
-                // Accounts
-                $router->get('accounts', [
-                    'uses' => 'Google\Analytics\AccountsController@index'
-                ]); // GET /v1/ga/accounts
+        /*
+         |--------------------------------------------------------------------------
+         | GoogleAnalytics
+         |--------------------------------------------------------------------------
+         */
+        $router->group(['prefix' => 'ga'], function ($router) {
+            // Accounts
+            $router->get('accounts', [
+                'uses' => 'Google\Analytics\AccountsController@index'
+            ]); // GET /v1/ga/accounts
+
+            $router->group(['middleware' => ['ga_employee']], function ($router) {
 
                 $router->get('accounts/{accountId}/history', [
                     'uses' => 'Google\Analytics\AccountsController@history'
@@ -170,23 +173,23 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
                 //     'uses' => 'Google\Analytics\ProfileUserLinksController@index'
                 // ]);
             });
-
-            /*
-             |--------------------------------------------------------------------------
-             | GoogleTagManager
-             |--------------------------------------------------------------------------
-             */
-            $router->get('gtm/accounts', ['uses' => 'Google\TagManager\AccountsController@index']);
-            $router->get('gtm/accounts/{accountId}/history', ['uses' => 'Google\TagManager\AccountsController@history']);
-
-            /*
-             |--------------------------------------------------------------------------
-             | GoogleSeacrhConsole
-             |--------------------------------------------------------------------------
-             */
-            $router->get('gsc/sites', ['uses' => 'Google\SearchConsole\SitesController@index']);
-            $router->get('gsc/sites/{siteUrl}/history', ['uses' => 'Google\SearchConsole\SitesController@history']);
         });
+
+        /*
+         |--------------------------------------------------------------------------
+         | GoogleTagManager
+         |--------------------------------------------------------------------------
+         */
+        $router->get('gtm/accounts', ['uses' => 'Google\TagManager\AccountsController@index']);
+        $router->get('gtm/accounts/{accountId}/history', ['uses' => 'Google\TagManager\AccountsController@history']);
+
+        /*
+         |--------------------------------------------------------------------------
+         | GoogleSeacrhConsole
+         |--------------------------------------------------------------------------
+         */
+        $router->get('gsc/sites', ['uses' => 'Google\SearchConsole\SitesController@index']);
+        $router->get('gsc/sites/{siteUrl}/history', ['uses' => 'Google\SearchConsole\SitesController@history']);
     });
 
     // Auth

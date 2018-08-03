@@ -274,4 +274,18 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
 
         return $query;
     }
+
+    /**
+     * Get available account ids for user.
+     *
+     * @return array
+     */
+    public function getAvailableAccounts()
+    {
+        foreach ($this->accounts as $account) {
+            $accountIds[] = $account->accountId;
+        }
+
+        return $accountIds ?? [];
+    }
 }
