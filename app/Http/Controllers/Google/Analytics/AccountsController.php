@@ -31,12 +31,13 @@ class AccountsController extends Controller
     {
         $currentUser = JWTAuth::user();
         if ($currentUser->role->isEmployee()) {
-            $accountIds = $currentUser->getAvailableAccounts();
-            $query = Account::query();
-            $query->whereIn('accountId', $accountIds);
+            // $accountIds = $currentUser->getAvailableAccounts();
+            // $query = Account::query();
+            // $query->whereIn('accountId', $accountIds);
         }
         /** @var \Illuminate\Support\Collection $accounts */
-        $accounts = Account::filter($request, $query)
+        //$accounts = Account::filter($request, $query)
+        $accounts = Account::filter($request)
             ->latest('created_at')
             ->get()
             ->unique('accountId');

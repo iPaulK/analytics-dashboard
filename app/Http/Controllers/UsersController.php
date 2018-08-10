@@ -63,9 +63,16 @@ class UsersController extends Controller
     {
         // Hydrating the retrieved employee object from the request
         $user = (new User)->createByRole(Role::ROLE_EMPLOYEE);
+        
         // Hydrating the retrieved user object from the request
         $user = $jsonApi->hydrate(new UserHydrator(), $user);
         $user->save();
+        
+        // sync accounts
+        $accounts = $this->getAccountsIds($jsonApi);
+        $user->accounts()->sync($accounts);
+        $user->save();
+        
         // Returns a "201 Created" response
         return $jsonApi->respond()->ok($this->createUserDocument(), $user);
     }
@@ -82,7 +89,7 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $accounts = $this->getAccountsIds($request);
+        $accounts = $this->getAccountsIds($jsonApi);
 
         // Hydrating the retrieved user object from the request
         $user = $jsonApi->hydrate(new UserHydrator(), $user);
@@ -94,17 +101,15 @@ class UsersController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param JsonApi $jsonApi
      * @return array
      */
-    private function getAccountsIds(Request $request)
+    private function getAccountsIds(JsonApi $jsonApi)
     {
         $accounts = [];
-        $data = $request->input('data');
-        if (isset($data['attributes']['accounts_id']) && is_array($data['attributes']['accounts_id'])) {
-            foreach ($data['attributes']['accounts_id'] as $accountId) {
-                $accounts[] = $accountId;
-            }
+        $attributes = $jsonApi->getRequest()->getResourceAttributes();
+        if (isset($attributes['accounts_id']) && is_array($attributes['accounts_id'])) {
+            $accounts = $attributes['accounts_id'];
         }
         return $accounts;
     }
