@@ -12,6 +12,7 @@ use App\JsonApi\Document\Google\SearchConsole\{
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use WoohooLabs\Yin\JsonApi\JsonApi;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 /**
@@ -29,8 +30,15 @@ class SitesController extends Controller
      */
     public function index(Request $request, JsonApi $jsonApi): ResponseInterface
     {
+        $currentUser = JWTAuth::user();
+        $query = Site::query();
+
+        if ($currentUser->role->isEmployee()) {
+            $siteUrls = []; // TODO
+            $query->whereIn('siteUrl', $siteUrls);
+        }
         /** @var \Illuminate\Support\Collection $sites */
-        $sites = Site::filter($request)
+        $sites = Site::filter($request, $query)
             ->latest('created_at')
             ->get()
             ->unique('siteUrl');

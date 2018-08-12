@@ -105,6 +105,7 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
     {
         return [
             'id' => $this->id,
+            'role' => $this->role->name,
         ];
     }
 

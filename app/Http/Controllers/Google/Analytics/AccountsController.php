@@ -30,14 +30,14 @@ class AccountsController extends Controller
     public function index(Request $request, JsonApi $jsonApi): ResponseInterface
     {
         $currentUser = JWTAuth::user();
+        $query = Account::query();
+
         if ($currentUser->role->isEmployee()) {
-            // $accountIds = $currentUser->getAvailableAccounts();
-            // $query = Account::query();
-            // $query->whereIn('accountId', $accountIds);
+            $accountIds = $currentUser->getAvailableAccounts();
+            $query->whereIn('accountId', $accountIds);
         }
         /** @var \Illuminate\Support\Collection $accounts */
-        //$accounts = Account::filter($request, $query)
-        $accounts = Account::filter($request)
+        $accounts = Account::filter($request, $query)
             ->latest('created_at')
             ->get()
             ->unique('accountId');
