@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Role;
 use App\Models\Google\Analytics\Account;
+use App\Notifications\ResetPassword as ResetPasswordNotification;
+use App\Notifications\CreatePassword as CreatePasswordNotification;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -12,6 +14,8 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Password;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -21,7 +25,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  */
 class User extends Model implements JWTSubject, AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
-    use Authenticatable, Authorizable, CanResetPassword;
+    use Authenticatable, Authorizable, Notifiable, CanResetPassword;
 
     /**
      * The table associated with the model.
@@ -288,5 +292,37 @@ class User extends Model implements JWTSubject, AuthenticatableContract, Authori
         }
 
         return $accountIds ?? [];
+    }
+
+    /**
+     * Send the password create notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordCreateNotification($token)
+    {
+        $this->notify(new CreatePasswordNotification($token));
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Create a new password reset token for the current user.
+     *
+     * @return string
+     */
+    public function createPasswordToken()
+    {
+        return Password::broker($this->table)->createToken($this);
     }
 }

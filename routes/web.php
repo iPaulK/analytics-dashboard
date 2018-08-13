@@ -18,6 +18,11 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     // Login
     $router->post('access-tokens', ['uses' => 'AuthController@login']);
+
+    // Forgot password
+    $router->post('passwords/forgot', 'Auth\PasswordController@forgot');
+    // Reset password
+    $router->post('passwords/reset', 'Auth\PasswordController@reset');
     
     $router->group(['middleware' => ['auth:api']], function ($router) {
         // Logout
@@ -199,6 +204,8 @@ $router->group(['prefix' => 'v1', 'middleware' => 'cors'], function ($router) {
     $router->options('me', 'AuthController@options');
     $router->options('users', 'UsersController@options');
     $router->options('users/{id}', 'UsersController@options');
+    $router->options('passwords/forgot', 'AuthController@options');
+    $router->options('passwords/reset', 'AuthController@options');
     
     // Accounts
     $router->options('ga/accounts', 'Google\Analytics\AccountsController@options');

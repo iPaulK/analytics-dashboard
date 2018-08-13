@@ -76,6 +76,15 @@ $app->routeMiddleware([
 
 /*
 |--------------------------------------------------------------------------
+| Register other services
+|--------------------------------------------------------------------------
+*/
+$app->alias('mailer', \Illuminate\Contracts\Mail\Mailer::class);
+
+$app->configure('mail');
+
+/*
+|--------------------------------------------------------------------------
 | Register Service Providers
 |--------------------------------------------------------------------------
 |
@@ -91,6 +100,9 @@ $app->register(App\Providers\JsonApiProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(App\Providers\GoogleServiceProvider::class);
+$app->register(\Illuminate\Auth\Passwords\PasswordResetServiceProvider::class);
+$app->register(\Illuminate\Notifications\NotificationServiceProvider::class);
+$app->register(\Illuminate\Mail\MailServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
