@@ -46,7 +46,7 @@ class CreatePassword extends Notification
     {
         return (new MailMessage)
             ->line('New account was successfully created. Please create password.')
-            ->action('Create Password', env('DASHBOARD_URL') . $this->token)
+            ->action('Create Password', url("/passwords/reset/?{$this->token}"))
             ->line('If you did not request a account create, no further action is required.');
     }
 }
